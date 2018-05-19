@@ -1,0 +1,55 @@
+﻿  Source.cpp
+d:\ja\fakultet\5. godina\sir1\particle-system\particle system\source.cpp(52): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+  Rectangle.cpp
+d:\ja\fakultet\5. godina\sir1\particle-system\particle system\rectangle.cpp(97): warning C4305: '+=': truncation from 'double' to 'GLfloat'
+  Generating Code...
+Rectangle.obj : error LNK2019: unresolved external symbol __imp_glBindTexture referenced in function "private: void __cdecl Rectangle::init_buffer(void)" (?init_buffer@Rectangle@@AEAAXXZ)
+Rectangle.obj : error LNK2019: unresolved external symbol __imp_glBlendFunc referenced in function "public: void __cdecl Rectangle::Render(float)" (?Render@Rectangle@@QEAAXM@Z)
+Rectangle.obj : error LNK2019: unresolved external symbol __imp_glClear referenced in function "public: void __cdecl Rectangle::Render(float)" (?Render@Rectangle@@QEAAXM@Z)
+Rectangle.obj : error LNK2019: unresolved external symbol __imp_glDisable referenced in function "public: void __cdecl Rectangle::Render(float)" (?Render@Rectangle@@QEAAXM@Z)
+Rectangle.obj : error LNK2019: unresolved external symbol __imp_glDrawArrays referenced in function "public: void __cdecl Rectangle::Render(float)" (?Render@Rectangle@@QEAAXM@Z)
+Rectangle.obj : error LNK2019: unresolved external symbol __imp_glEnable referenced in function "public: void __cdecl Rectangle::Render(float)" (?Render@Rectangle@@QEAAXM@Z)
+Rectangle.obj : error LNK2019: unresolved external symbol __imp_glGenTextures referenced in function "private: void __cdecl Rectangle::init_buffer(void)" (?init_buffer@Rectangle@@AEAAXXZ)
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewBindBuffer
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewBufferData
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewGenBuffers
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewUnmapBuffer
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewAttachShader
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewCompileShader
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewCreateProgram
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewCreateShader
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewDeleteProgram
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewDeleteShader
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewEnableVertexAttribArray
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewGetProgramInfoLog
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewGetProgramiv
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewGetShaderInfoLog
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewGetShaderiv
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewGetUniformLocation
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewLinkProgram
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewShaderSource
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewUniformMatrix4fv
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewUseProgram
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewVertexAttribPointer
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewTexBuffer
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewDispatchCompute
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewMapBufferRange
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewBindImageTexture
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewMemoryBarrier
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewBindVertexArray
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewDeleteVertexArrays
+Rectangle.obj : error LNK2001: unresolved external symbol __imp___glewGenVertexArrays
+Source.obj : error LNK2019: unresolved external symbol __imp_glViewport referenced in function main
+Source.obj : error LNK2019: unresolved external symbol __imp_glewInit referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwInit referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwTerminate referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwWindowHint referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwCreateWindow referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwWindowShouldClose referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwGetFramebufferSize referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwPollEvents referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwMakeContextCurrent referenced in function main
+Source.obj : error LNK2019: unresolved external symbol glfwSwapBuffers referenced in function main
+Source.obj : error LNK2001: unresolved external symbol __imp___glewClearBufferfv
+Source.obj : error LNK2001: unresolved external symbol __imp_glewExperimental
+D:\Ja\fakultet\5. Godina\SIR1\particle-system\x64\Debug\Particle system.exe : fatal error LNK1120: 49 unresolved externals

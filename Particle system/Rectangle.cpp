@@ -28,6 +28,19 @@ static vmath::vec3 random_vector(float minmag = 0.0f, float maxmag = 1.0f)
 }
 
 
+
+static inline float random_float_in_range(float min, float max) {
+
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	std::random_device randomDevice; 
+	std::default_random_engine generator(seed);
+
+	std::uniform_real_distribution<double> distribution(min, max);
+
+	return distribution(generator);
+	
+}
+
 static double distance(vmath::vec4 a, vmath::vec4 b) {
 
 	return sqrt(pow(a[0] - b[0], 2) + pow(a[1] - b[1], 2) + pow(a[2] - b[2], 2));
@@ -44,11 +57,11 @@ void Rectangle::Init()
 
 void Rectangle::Render(GLfloat aspect)
 {
-	static const GLuint start_ticks = ::GetTickCount() - 100000;
+	/*static const GLuint start_ticks = ::GetTickCount() - 100000;
 	GLuint current_ticks = ::GetTickCount();
 	static GLuint last_ticks = current_ticks;
 	float time = ((start_ticks - current_ticks) & 0xFFFFF) / float(0xFFFFF);
-	float delta_time = (float)(current_ticks - last_ticks) * 0.075f;
+	*///float delta_time = (float)(current_ticks - last_ticks) * 0.075f;
 	
 
 	/*vmath::vec4 * attractors = (vmath::vec4 *)glMapBufferRange(GL_UNIFORM_BUFFER,
@@ -71,10 +84,10 @@ void Rectangle::Render(GLfloat aspect)
 	// If dt is too large, the system could explode, so cap it to
 	// some maximum allowed value
 
-	if (delta_time >= 2.0f)
+	/*if (delta_time >= 2.0f)
 	{
 		delta_time = 2.0f;
-	}
+	}*/
 ;
 	glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
 
@@ -94,7 +107,7 @@ void Rectangle::Render(GLfloat aspect)
 
 	vmath::mat4 mvp = vmath::perspective(45.0f, aspect, 0.1f, 1000.0f) *
 		vmath::translate(0.0f, 0.0f, -40.0f) *
-		vmath::rotate(/*time * 1000.0f*/ rotationAngle+=0.2 /*150.0f*/ , vmath::vec3(0.0f, 1.0f, 0.0f));
+		vmath::rotate(/*time * 1000.0f*/ /*rotationAngle+=0.2*/ 0.0f /*150.0f*/ , vmath::vec3(0.0f, 1.0f, 0.0f));
 
 	// Clear, select the rendering program and draw a full screen quad
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -104,10 +117,10 @@ void Rectangle::Render(GLfloat aspect)
 	glBindVertexArray(render_vao);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	//glPointSize(2.0f);
+	//glPointSize(5.0f);
 	glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
 
-	last_ticks = current_ticks;
+	//last_ticks = current_ticks;
 	
 }
 
@@ -118,7 +131,6 @@ void Rectangle::Shutdown()
 	glDeleteProgram(render_prog);
 	glDeleteVertexArrays(1, &render_vao);
 }
-
 
 
 void Rectangle::init_shader()
@@ -136,10 +148,10 @@ void Rectangle::init_shader()
 
 void Rectangle::init_buffer()
 {
-	glGenVertexArrays(1, &render_vao);
+	glGenVertexArrays(/*2*/ 1, &render_vao);
 	glBindVertexArray(render_vao);
 
-	glGenBuffers(2, buffers);
+	glGenBuffers(1, buffers);
 	glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
 	glBufferData(GL_ARRAY_BUFFER, PARTICLE_COUNT * sizeof(vmath::vec4), NULL, GL_DYNAMIC_COPY);
 
@@ -150,7 +162,12 @@ void Rectangle::init_buffer()
 
 	for (int i = 0; i < PARTICLE_COUNT; i++)
 	{
-		positions[i] = vmath::vec4(random_vector(-10.0f, 10.0f), /*0.1*/ random_float());
+	
+		/*float v1 = random_float_in_range(5.0, 5.3);
+		float v2 = random_float_in_range(5.0, 5.3);
+		float v3 = random_float_in_range(5.0, 5.3);*/
+
+		positions[i] = vmath::vec4(random_vector(0.001f , 0.002f) /*vmath::vec3(v1,v2,v3)*/ , random_float());
 	}
 
 	glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -188,9 +205,9 @@ void Rectangle::init_buffer()
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffers[i]);
 	}
 
-	glGenBuffers(1, &attractor_buffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, attractor_buffer);
-	glBufferData(GL_UNIFORM_BUFFER, 32 * sizeof(vmath::vec4), NULL, GL_STATIC_DRAW);
+	//glGenBuffers(1, &attractor_buffer);
+	//glBindBuffer(GL_UNIFORM_BUFFER, attractor_buffer);
+	//glBufferData(GL_UNIFORM_BUFFER, 32 * sizeof(vmath::vec4), NULL, GL_STATIC_DRAW);
 
 	/*
 	for (int i = 0; i < MAX_ATTRACTORS; i++)

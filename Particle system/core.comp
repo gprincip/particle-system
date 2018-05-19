@@ -5,11 +5,11 @@
   //  vec4 attractor[64]; // xyz = position, w = mass
 //};
 
-mat4 translation; 
+ 
 
 layout (local_size_x = 128) in;
 
-//layout (rgba32f, binding = 0) uniform imageBuffer velocity_buffer;
+
 layout (rgba32f, binding = 1) uniform imageBuffer position_buffer;
 
 uniform float dt = 1.0;
@@ -20,14 +20,15 @@ void main(void)
 {
    // vec4 vel = imageLoad(velocity_buffer, int(gl_GlobalInvocationID.x));
     vec4 pos = imageLoad(position_buffer, int(gl_GlobalInvocationID.x));
+	mat4 translation;
 	float PI = 3.141592653589793238;
 	float gravityConstant = 6.67428*pow(10,-11);
-	float divider = 150;
+	float divider = 1000;
 	float a = 1; //parameter of vector field
-	vec4 centerOfMass = vec4(-30.0, 0.0, 0.0, 1.0);
+	vec3 centerOfMass = vec3(-70.0, 10.0, 0.0);
 
-	float sigma = 5.0;
-	float ro = 20.0;
+	float sigma = 10.0;
+	float ro = 28.0;
 	float beta = 8.0/3.0;
 
 	//translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  (-pos.y/divider * pos.z/divider), (2*pos.x/divider * pos.z/divider), 0.0, 1.0);
@@ -38,12 +39,26 @@ void main(void)
 	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, (sigma * (pos.y - pos.x))/divider , (ro*pos.x - pos.y - pos.x * pos.z)/divider , (pos.x*pos.y - beta*pos.z)/divider , 1.0);
 
 	float d = length(pos.xyz - centerOfMass.xyz);
+	
+	//Proverava se udaljenost od centra mase jer kada cestice dodju blizu
+	//centru mase, translacija ne radi kako treba, cestice ne ostaju u centru
+	//nego se transliraju na druga mesta
 
-	vec3 pomeraj = (-gravityConstant * (1.0 * 1000000000000.0) / (d*d)) * normalize(pos.xyz - centerOfMass.xyz);
+	if(length(pos.xyz - centerOfMass.xyz) > 10.0){
+
+	vec3 pomeraj = -gravityConstant * (1.0 * 1000000000000.0) / (d*d) * normalize(pos.xyz - centerOfMass.xyz);
 		
 	//translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, pomeraj.x, pomeraj.y, pomeraj.z, 1.0);
+	
+	//Crvene cestice su se pomerale brze, zato sto je cetvrta komponenta vektora pos intentenzitet,
+	//tako da pri transliranju (mnozenju matrica) ova vrednost utice na koordinate translirane cestice
 
-	pos = translation * pos;
+	pos.xyz = (translation * vec4(pos.xyz, 1.0)).xyz;
+
+	}
+
+	pos.xyz = (translation * vec4(pos.xyz, 1.0)).xyz;
+
 
     imageStore(position_buffer, int(gl_GlobalInvocationID.x), pos);
   //  imageStore(velocity_buffer, int(gl_GlobalInvocationID.x), vel);
