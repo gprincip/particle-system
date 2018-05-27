@@ -52,7 +52,7 @@ void Rectangle::Init()
 	init_buffer();
 	init_vertexArray();
 	
-	//init_ParticleShader();
+	init_ParticleShader();
 	init_TextRenderingShader();
 	init_textBufferAndFreetype();
 	rotationAngle = 0.0f;
@@ -62,6 +62,7 @@ void Rectangle::Init()
 void Rectangle::Render(GLfloat aspect)
 {
 	
+	//init_particleShader() will also use particle shader
 	//init_ParticleShader();
 	//glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
 
@@ -79,7 +80,7 @@ void Rectangle::Render(GLfloat aspect)
 	
 	if (rotationAngle >= 360.0) rotationAngle = 0.0;
 
-	glUseProgram(render_prog);
+	
 	GLfloat black[4] = { 1, 1, 1, 1 };
 	glUniform4fv(uniform_color, 1, black);
 
@@ -98,6 +99,7 @@ void Rectangle::Render(GLfloat aspect)
 	
 	//glBindVertexArray(render_vao);
 	glEnable(GL_BLEND);
+	//this kind of blending must be used for freetype text rendering
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //	render_text("The Quick Brown Fox Jumps Over The Lazy Dog",
 		//-1 + 8 * sx, 1 - 50 * sy, sx, sy);
@@ -108,8 +110,8 @@ void Rectangle::Render(GLfloat aspect)
 	
 	//glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
 
-	//
 	
+	glUseProgram(text_render_prog);
 	render_text("The Quick Brown Fox Jumps Over The Lazy Dog",
 		-1 + 8 * sx, 1 - 50 * sy, sx, sy);
 
@@ -139,8 +141,7 @@ void Rectangle::init_ParticleShader()
 void Rectangle::init_TextRenderingShader() {
 
 	shader.setUpShader("fontVertexShader.vs", "fontFragmentShader.frag", "");
-	shader.use();
-	render_prog= shader.programNonComputeShader;
+	text_render_prog= shader.programNonComputeShader;
 
 	//CompShader.init();
 	//CompShader.attach(GL_COMPUTE_SHADER, "simple.comp");
@@ -203,9 +204,9 @@ void Rectangle::init_vertexArray()
 
 void Rectangle::init_textBufferAndFreetype() {
 
-	attribute_coord = glGetUniformLocation(render_prog, "coord");
-	uniform_tex = glGetUniformLocation(render_prog, "tex");
-	uniform_color = glGetUniformLocation(render_prog, "color");
+	attribute_coord = glGetUniformLocation(text_render_prog, "coord");
+	uniform_tex = glGetUniformLocation(text_render_prog, "tex");
+	uniform_color = glGetUniformLocation(text_render_prog, "color");
 
 	glActiveTexture(GL_TEXTURE0);
 	glGenTextures(1, &tex);

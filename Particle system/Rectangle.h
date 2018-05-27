@@ -59,6 +59,7 @@ private:
 	// Member variables
 	GLuint compute_prog;
 	GLuint render_prog;
+	GLuint text_render_prog;
 	// Compute program
 	GLint   dt_location;
 
