@@ -4,11 +4,13 @@
 #include<vector>
 #include<random>
 #include<chrono>
+#include<ft2build.h>
+#include FT_FREETYPE_H
 
 enum
 {
 	PARTICLE_GROUP_SIZE = 128,
-	PARTICLE_GROUP_COUNT = 8000,
+	PARTICLE_GROUP_COUNT = 3000,
 	PARTICLE_COUNT = (PARTICLE_GROUP_SIZE * PARTICLE_GROUP_COUNT),
 	MAX_ATTRACTORS = 64
 };
@@ -29,30 +31,43 @@ public:
 
 
 private:
-	void init_shader();
+	void init_ParticleShader();
+	void init_TextRenderingShader();
 	void init_buffer();
 	void init_vertexArray();
-
+	void init_textBufferAndFreetype();
+	void render_text(const char *text, float x, float y, float sx, float sy);
 
 private:
 
 	GLuint vao;
-	GLuint vao2; //za linije
 	GLuint vbo;
-	GLuint vbo2; //za linije
+
+	GLuint fontVao;
+	GLuint fontVbo;
+
+	GLint attribute_coord;
+
+	GLuint tex; //Font texture
+	GLint uniform_tex;
+	GLint uniform_color;
+	
 	GLint program;
 	Shader shader;
 
 	GLuint  output_image;
 	// Member variables
-	GLuint  compute_prog;
-	GLuint  render_prog;
+	GLuint compute_prog;
+	GLuint render_prog;
 	// Compute program
 	GLint   dt_location;
 
+	FT_Library ft; //freeType library
+	FT_Face face;
+	FT_GlyphSlot g;
 public:
 	GLfloat rotationAngle;
-
+	
 	// Posisition and velocity buffers
 	union
 	{

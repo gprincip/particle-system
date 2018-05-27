@@ -97,11 +97,11 @@ public:
 		programNonComputeShader = glCreateProgram();
 		programComputeShader = glCreateProgram();
 
-		glAttachShader(programNonComputeShader, vertex);
-		glAttachShader(programNonComputeShader, fragment);
-		glAttachShader(programComputeShader, compute);
+		if(vertexPath != "") glAttachShader(programNonComputeShader, vertex);
+		if (fragmentPath != "") glAttachShader(programNonComputeShader, fragment);
+		if (computePath != "") glAttachShader(programComputeShader, compute);
 		glLinkProgram(programNonComputeShader);
-		glLinkProgram(programComputeShader);
+		if (computePath != "") glLinkProgram(programComputeShader);
 
 		glGetProgramiv(programNonComputeShader, GL_LINK_STATUS, &success);
 		if (!success) {
@@ -109,15 +109,17 @@ public:
 			cout << "Error while linking non-compute program" << infoLog << endl;
 		}
 
-		glGetProgramiv(programComputeShader, GL_LINK_STATUS, &success);
-		if (!success) {
-			glGetProgramInfoLog(programComputeShader, 512, NULL, infoLog);
-			cout << "Error while linking compute program" << infoLog << endl;
+		if (computePath != "") {
+			glGetProgramiv(programComputeShader, GL_LINK_STATUS, &success);
+			if (!success) {
+				glGetProgramInfoLog(programComputeShader, 512, NULL, infoLog);
+				cout << "Error while linking compute program" << infoLog << endl;
+			}
 		}
 
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
-		glDeleteShader(compute);
+		if (computePath != "") glDeleteShader(compute);
 	}
 
 	void use() {

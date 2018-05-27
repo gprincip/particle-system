@@ -22,6 +22,7 @@
     <ProjectGuid>{578221D7-1104-4461-8269-1468E0B5A537}</ProjectGuid>
     <RootNamespace>Particlesystem</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>Particle System</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -68,7 +69,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>D:\Ja\fakultet\5. Godina\SIR1\particle-system\Particle system\ft-include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -77,7 +80,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>D:\Ja\fakultet\5. Godina\SIR1\particle-system\Particle system\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;freeglut.lib;DevIL.lib;glfw3.lib;opengl32.lib;freetype26d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;freeglut.lib;DevIL.lib;glfw3.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -123,6 +126,8 @@
     <None Include="core1.comp" />
     <None Include="core.frag" />
     <None Include="core.vs" />
+    <None Include="fontFragmentShader.frag" />
+    <None Include="fontVertexShader.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Rectangle.cpp" />

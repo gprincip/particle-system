@@ -7,7 +7,11 @@
 #include"Rectangle.h"
 #include "GL\glm\glm.hpp"
 
+#include<ft2build.h>
+#include FT_FREETYPE_H
+
 using namespace std;
+int screenWidth, screenHeight;
 
 void main() {
 	
@@ -19,11 +23,10 @@ void main() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	GLFWwindow *window = glfwCreateWindow(1600, 900, "Prozor", NULL, NULL);
-
-	int screenWidth, screenHeight;
+	GLFWwindow *window = glfwCreateWindow(1600, 900, "Window", NULL, NULL);
+	
 	glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
-
+	
 	if (window == NULL) {
 		cout << "Neuspesno pravljenje prozora" << endl;
 		glfwTerminate();

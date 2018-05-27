@@ -38,6 +38,12 @@
     <None Include="core.comp">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="fontVertexShader.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fontFragmentShader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Rectangle.cpp">
