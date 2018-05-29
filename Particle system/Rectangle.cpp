@@ -61,58 +61,63 @@ void Rectangle::Init()
 
 void Rectangle::Render(GLfloat aspect)
 {
-	
-	//init_particleShader() will also use particle shader
-	//init_ParticleShader();
-	//glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
 
-	// Activate the compute program and bind the position and velocity buffers
-	// Preko tekstura povezujemo bafer i sejder, da sejder moze da cita i upisuje u bafer
-	//glUseProgram(compute_prog);
-	//glBindImageTexture(0, velocity_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-	//glBindImageTexture(1, position_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-	// Set delta time
-	//glUniform1f(dt_location, delta_time);
-	// Dispatch
-	//glDispatchCompute(PARTICLE_GROUP_COUNT, 1, 1);
+	/************************SETTINGS********************/
+	glFinish();
+	double startTime = glfwGetTime();
 
-	//glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
+
+	glEnable(GL_BLEND);
+	//this kind of blending must be used for freetype text rendering
+	glBlendFunc(GL_ONE, GL_ONE);
+
 	if (rotationAngle >= 360.0) rotationAngle = 0.0;
 
+	vmath::mat4 mvp = vmath::perspective(45.0f, aspect, 0.1f, 1000.0f) *
+		vmath::translate(0.0f, 0.0f, -40.0f) *
+		vmath::rotate(/*time * 1000.0f*/ /*rotationAngle+=0.2*/ 0.0f /*150.0f*/, vmath::vec3(0.0f, 1.0f, 0.0f));
+
+	/******************PARTICLES DRAWING*****************/
+
+	glUseProgram(compute_prog);
 	
-	GLfloat black[4] = { 1, 1, 1, 1 };
+	glBindVertexArray(render_vao);
+	 
+	//Preko tekstura povezujemo bafer i sejder, da sejder moze da cita i upisuje u bafer
+	//glBindImageTexture(0, velocity_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	glBindImageTexture(1, position_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	
+	//Dispatch
+	glDispatchCompute(PARTICLE_GROUP_COUNT, 1, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+	glUseProgram(render_prog);
+
+	int mvp_location = glGetUniformLocation(render_prog, "mvp");
+	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
+
+	//glPointSize(5.0f);
+	glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
+
+	/******************TEXT DRAWING*****************/
+	glUseProgram(text_render_prog);
+	glBindVertexArray(fontVao);
+	
+	GLfloat black[4] = { 0.5f, 0.0f, 1.0f, 1.0f };
 	glUniform4fv(uniform_color, 1, black);
 
 	float sx = 2.0 / 1600;
 	float sy = 2.0 / 900;
 
-	vmath::mat4 mvp = vmath::perspective(45.0f, aspect, 0.1f, 1000.0f) *
-		vmath::translate(0.0f, 0.0f, -40.0f) *
-		vmath::rotate(/*time * 1000.0f*/ /*rotationAngle+=0.2*/ 0.0f /*150.0f*/ , vmath::vec3(0.0f, 1.0f, 0.0f));
+	glFinish();
+	double endTime = glfwGetTime();
+	char deltaTime[20];
+	sprintf_s(deltaTime, "ms ~ %.3f",(endTime- startTime)*1000);
 
-	// Clear, select the rendering program and draw a full screen quad
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_DEPTH_TEST);	
-	//glUseProgram(render_prog);
-	glUniformMatrix4fv(0, 1, GL_FALSE, mvp);
-	
-	//glBindVertexArray(render_vao);
-	glEnable(GL_BLEND);
-	//this kind of blending must be used for freetype text rendering
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//	render_text("The Quick Brown Fox Jumps Over The Lazy Dog",
-		//-1 + 8 * sx, 1 - 50 * sy, sx, sy);
-	//glPointSize(5.0f);
-	//init_buffer();
-	//init_vertexArray();
-	//init_ParticleShader();
-	
-	//glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
-
-	
-	glUseProgram(text_render_prog);
-	render_text("The Quick Brown Fox Jumps Over The Lazy Dog",
+	render_text(deltaTime,
 		-1 + 8 * sx, 1 - 50 * sy, sx, sy);
 
 }
@@ -122,7 +127,7 @@ void Rectangle::Shutdown()
 	glUseProgram(0);
 	glDeleteProgram(compute_prog);
 	glDeleteProgram(render_prog);
-	//glDeleteProgram(text_rendering_prog);
+	glDeleteProgram(text_render_prog);
 	glDeleteVertexArrays(1, &render_vao);
 	glDeleteVertexArrays(1, &fontVao);
 }
@@ -131,9 +136,7 @@ void Rectangle::Shutdown()
 void Rectangle::init_ParticleShader()
 {
 	shader.setUpShader("core.vs", "core.frag", "core.comp");
-	shader.use();
 	render_prog = shader.programNonComputeShader;
-
 	compute_prog = shader.programComputeShader;
 	dt_location = glGetUniformLocation(compute_prog, "dt");
 }
@@ -156,7 +159,7 @@ void Rectangle::init_buffer()
 	glGenVertexArrays(/*2*/ 1, &render_vao);
 	glBindVertexArray(render_vao);
 
-	glGenBuffers(1, buffers);
+	glGenBuffers(1, &position_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
 	glBufferData(GL_ARRAY_BUFFER, PARTICLE_COUNT * sizeof(vmath::vec4), NULL, GL_DYNAMIC_COPY);
 
@@ -172,7 +175,7 @@ void Rectangle::init_buffer()
 		float v2 = random_float_in_range(5.0, 5.3);
 		float v3 = random_float_in_range(5.0, 5.3);*/
 
-		positions[i] = vmath::vec4(random_vector(0.001f , 0.002f) /*vmath::vec3(v1,v2,v3)*/ , random_float());
+		positions[i] = vmath::vec4(random_vector(0.0001 , 0.0002) /*vmath::vec3(v1,v2,v3)*/ , random_float());
 	}
 
 	glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -187,6 +190,8 @@ void Rectangle::init_buffer()
 		glBindTexture(GL_TEXTURE_BUFFER, tbos[i]);
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffers[i]);
 	}
+
+	glBindVertexArray(0);
 
 }
 
@@ -221,11 +226,16 @@ void Rectangle::init_textBufferAndFreetype() {
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenVertexArrays(1, &fontVao);
-	glBindVertexArray(fontVao);
 	glGenBuffers(1, &fontVbo);
-	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(fontVao);
 	glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
+
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	
+	glBindVertexArray(0); //unbind
+	
 
 	if (FT_Init_FreeType(&ft)) {
 		cout << "Could not init freetype library\n" << endl;

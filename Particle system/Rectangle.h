@@ -5,14 +5,14 @@
 #include<random>
 #include<chrono>
 #include<ft2build.h>
+#include"GL\glfw3.h"
 #include FT_FREETYPE_H
 
 enum
 {
 	PARTICLE_GROUP_SIZE = 128,
-	PARTICLE_GROUP_COUNT = 3000,
+	PARTICLE_GROUP_COUNT = 5000,
 	PARTICLE_COUNT = (PARTICLE_GROUP_SIZE * PARTICLE_GROUP_COUNT),
-	MAX_ATTRACTORS = 64
 };
 
 
@@ -97,9 +97,6 @@ public:
 	// Program, vao and vbo to render a full screen quad
 	GLuint  render_vao;
 	GLuint  render_vbo;
-
-	// Mass of the attractors
-	float attractor_masses[MAX_ATTRACTORS];
 };
 
 
