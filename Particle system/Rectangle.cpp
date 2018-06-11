@@ -1,6 +1,5 @@
 
 #include "Rectangle.h"
-#include"vmath.h"
 #include<Windows.h>
 
 static inline float random_float()
@@ -18,9 +17,9 @@ static inline float random_float()
 	return (res - 1.0f);
 }
 
-static vmath::vec3 random_vector(float minmag = 0.0f, float maxmag = 1.0f)
+static glm::vec3 random_vector(float minmag = 0.0f, float maxmag = 1.0f)
 {
-	vmath::vec3 randomvec(random_float() * 2.0f - 1.0f, random_float() * 2.0f - 1.0f, random_float() * 2.0f - 1.0f);
+	glm::vec3 randomvec(random_float() * 2.0f - 1.0f, random_float() * 2.0f - 1.0f, random_float() * 2.0f - 1.0f);
 	randomvec = normalize(randomvec);
 	randomvec *= (random_float() * (maxmag - minmag) + minmag);
 
@@ -31,21 +30,17 @@ static vmath::vec3 random_vector(float minmag = 0.0f, float maxmag = 1.0f)
 
 static inline float random_float_in_range(float min, float max) {
 
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	std::random_device randomDevice; 
-	std::default_random_engine generator(seed);
+	float rndFlt = random_float();
 
-	std::uniform_real_distribution<double> distribution(min, max);
-
-	return distribution(generator);
-	
-}
-
-static double distance(vmath::vec4 a, vmath::vec4 b) {
-
-	return sqrt(pow(a[0] - b[0], 2) + pow(a[1] - b[1], 2) + pow(a[2] - b[2], 2));
+	return min + (max - min) * rndFlt;
 
 }
+
+//static double distance(glm::vec4 a, glm::vec4 b) {
+//
+//	return sqrt(pow(a[0] - b[0], 2) + pow(a[1] - b[1], 2) + pow(a[2] - b[2], 2));
+//
+//}
 
 void Rectangle::Init()
 {
@@ -56,7 +51,16 @@ void Rectangle::Init()
 	init_TextRenderingShader();
 	init_textBufferAndFreetype();
 	rotationAngle = 0.0f;
+	glfwGetWindowSize(window, &width, &height);
+	lastX = width / 2;
+	lastY = height / 2;
 
+	//Camera is positioned in the origin (0,0,0) and looks towards the negative z-axis
+	cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	pitch = 0.0f;
+	yaw = -90.0f;
 }
 
 void Rectangle::Render(GLfloat aspect)
@@ -67,6 +71,7 @@ void Rectangle::Render(GLfloat aspect)
 	double startTime = glfwGetTime();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	glDisable(GL_DEPTH_TEST);
 
 	glEnable(GL_BLEND);
@@ -75,33 +80,75 @@ void Rectangle::Render(GLfloat aspect)
 
 	if (rotationAngle >= 360.0) rotationAngle = 0.0;
 
-	vmath::mat4 mvp = vmath::perspective(45.0f, aspect, 0.1f, 1000.0f) *
-		vmath::translate(0.0f, 0.0f, -40.0f) *
-		vmath::rotate(/*time * 1000.0f*/ /*rotationAngle+=0.2*/ 0.0f /*150.0f*/, vmath::vec3(0.0f, 1.0f, 0.0f));
+	/******************CAMERA MOVEMENT*****************/
 
+	pitch += yOffset; 
+	yaw += xOffset;
+
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
+
+	
+	glm::mat4 projection = glm::perspective(45.0f, aspect, 0.1f, 1000.0f);
+		//glm::translate(0.0f, 0.0f, -70.0f);//*
+		//glm::rotate(/*time * 1000.0f*/ /*rotationAngle+=0.2*/ 0.0f /*150.0f*/, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -70.0f));
+
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
+	
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+	glm::vec3 front;
+
+	front[0] = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	front[1] = sin(glm::radians(pitch));
+	front[2] = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+	cameraFront = glm::normalize(front);
+	
+	glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	cout << cameraPos.x <<","<<cameraPos.y<<","<<cameraPos.z << endl;
 	/******************PARTICLES DRAWING*****************/
 
 	glUseProgram(compute_prog);
-	
-	glBindVertexArray(render_vao);
 	 
 	//Preko tekstura povezujemo bafer i sejder, da sejder moze da cita i upisuje u bafer
-	//glBindImageTexture(0, velocity_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
 	glBindImageTexture(1, position_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 	
 	//Dispatch
 	glDispatchCompute(PARTICLE_GROUP_COUNT, 1, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
+	glBindVertexArray(render_vao);
 	glUseProgram(render_prog);
 
-	int mvp_location = glGetUniformLocation(render_prog, "mvp");
-	glUniformMatrix4fv(mvp_location, 1, GL_FALSE, mvp);
+	int model_location = glGetUniformLocation(render_prog, "model");
+	glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
 
-	//glPointSize(5.0f);
+	int view_location = glGetUniformLocation(render_prog, "view");
+	glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
+
+	int projection_location = glGetUniformLocation(render_prog, "projection");
+	glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+
+	//glPointSize(3.0f);
 	glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
 
 	/******************TEXT DRAWING*****************/
+
 	glUseProgram(text_render_prog);
 	glBindVertexArray(fontVao);
 	
@@ -113,13 +160,13 @@ void Rectangle::Render(GLfloat aspect)
 
 	glFinish();
 	double endTime = glfwGetTime();
-	char deltaTime[20];
+	char deltaTime[16];
 	sprintf_s(deltaTime, "ms ~ %.3f",(endTime- startTime)*1000);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	render_text(deltaTime,
 		-1 + 8 * sx, 1 - 50 * sy, sx, sy);
-
+	
 }
 
 void Rectangle::Shutdown()
@@ -146,12 +193,6 @@ void Rectangle::init_TextRenderingShader() {
 	shader.setUpShader("fontVertexShader.vs", "fontFragmentShader.frag", "");
 	text_render_prog= shader.programNonComputeShader;
 
-	//CompShader.init();
-	//CompShader.attach(GL_COMPUTE_SHADER, "simple.comp");
-	//CompShader.link();
-	//compute_prog = shader.programComputeShader;
-	//dt_location = glGetUniformLocation(compute_prog, "dt");
-
 }
 
 void Rectangle::init_buffer()
@@ -161,21 +202,21 @@ void Rectangle::init_buffer()
 
 	glGenBuffers(1, &position_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
-	glBufferData(GL_ARRAY_BUFFER, PARTICLE_COUNT * sizeof(vmath::vec4), NULL, GL_DYNAMIC_COPY);
+	glBufferData(GL_ARRAY_BUFFER, PARTICLE_COUNT * sizeof(glm::vec4), NULL, GL_DYNAMIC_COPY);
 
-	vmath::vec4 * positions = (vmath::vec4 *)glMapBufferRange(GL_ARRAY_BUFFER,
+	glm::vec4 * positions = (glm::vec4 *)glMapBufferRange(GL_ARRAY_BUFFER,
 		0,
-		PARTICLE_COUNT * sizeof(vmath::vec4),
+		PARTICLE_COUNT * sizeof(glm::vec4),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
 	for (int i = 0; i < PARTICLE_COUNT; i++)
 	{
 	
-		/*float v1 = random_float_in_range(5.0, 5.3);
-		float v2 = random_float_in_range(5.0, 5.3);
-		float v3 = random_float_in_range(5.0, 5.3);*/
+		float v1 = random_float_in_range(0, .01);
+		float v2 = random_float_in_range(0, .01);
+		float v3 = random_float_in_range(0, .01);
 
-		positions[i] = vmath::vec4(random_vector(0.0001 , 0.0002) /*vmath::vec3(v1,v2,v3)*/ , random_float());
+		positions[i] = glm::vec4(/*random_vector(0.0001 , 0.0002)*/ glm::vec3(v1,v2,v3) , random_float());
 	}
 
 	glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -289,3 +330,5 @@ void Rectangle::render_text(const char *text, float x, float y, float sx, float 
 	}
 
 }
+
+

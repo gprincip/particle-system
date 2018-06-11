@@ -23,7 +23,7 @@ void main(void)
 	mat4 translation;
 	float PI = 3.141592653589793238;
 	float gravityConstant = 6.67428*pow(10,-11);
-	float divider = 200;
+	float divider = 100;
 	float a = 1; //parameter of vector field
 	vec3 centerOfMass = vec3(60.0, 0.0, 0.0);
 

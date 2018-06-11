@@ -6,12 +6,14 @@
 #include<chrono>
 #include<ft2build.h>
 #include"GL\glfw3.h"
+#include"GL\glm\common.hpp"
+#include"GL\glm\gtc\matrix_transform.hpp"
 #include FT_FREETYPE_H
 
 enum
 {
 	PARTICLE_GROUP_SIZE = 128,
-	PARTICLE_GROUP_COUNT = 5000,
+	PARTICLE_GROUP_COUNT = 6000,
 	PARTICLE_COUNT = (PARTICLE_GROUP_SIZE * PARTICLE_GROUP_COUNT),
 };
 
@@ -22,13 +24,12 @@ class Rectangle
 public:
 	Rectangle() {}
 	~Rectangle() {}
-
 public:
 
 	void Init();
 	void Render(GLfloat aspect);
 	void Shutdown();
-
+	//void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 private:
 	void init_ParticleShader();
@@ -37,8 +38,9 @@ private:
 	void init_vertexArray();
 	void init_textBufferAndFreetype();
 	void render_text(const char *text, float x, float y, float sx, float sy);
-
 private:
+
+	int width = 0, height = 0;
 
 	GLuint vao;
 	GLuint vbo;
@@ -66,9 +68,27 @@ private:
 	FT_Library ft; //freeType library
 	FT_Face face;
 	FT_GlyphSlot g;
+
+	float cameraSpeed = 0.6;
+
+	glm::vec3 cameraPos;// = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraFront;// = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 cameraUp;// = glm::vec3(0.0f, 1.0f, 0.0f);
+
 public:
 	GLfloat rotationAngle;
-	
+	GLFWwindow *window;
+
+	//Last position of the mouse
+	double lastX, lastY;
+	double xOffset, yOffset;
+
+	bool firstMouse = true;
+
+	//Euler's angles
+	float pitch = 0;
+	float yaw = 0;
+
 	// Posisition and velocity buffers
 	union
 	{

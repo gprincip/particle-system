@@ -11,7 +11,10 @@
 #include FT_FREETYPE_H
 
 using namespace std;
+
 int screenWidth, screenHeight;
+Rectangle rect;
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 void main() {
 	
@@ -27,6 +30,9 @@ void main() {
 	
 	glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
 	
+	//Hide mouse pointer, and capture it (keep it inside the window)
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	if (window == NULL) {
 		cout << "Neuspesno pravljenje prozora" << endl;
 		glfwTerminate();
@@ -40,23 +46,46 @@ void main() {
 	}
 
 	glViewport(0, 0, screenWidth, screenHeight);
-
-	Rectangle rect;
+	
+	rect.window = window;
 	rect.Init();
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	while (!glfwWindowShouldClose(window)) {
 
-		//provera da li se desio neki dogadjaj (tastatura, mis..)
+		//Make offsets 0 if mouse is not moving
+		rect.xOffset = 0.0;
+		rect.yOffset = 0.0;
+		//Check for events
 		glfwPollEvents();
 
 		static const glm::vec4 bgColor(0.2f, 0.4f, 0.5f, 1.0f);
 		glClearBufferfv(GL_COLOR, 0, &bgColor[0]);
-
-		rect.Render(screenWidth / screenHeight);
+		float aspect = (float)screenWidth / (float)screenHeight;
+		rect.Render(aspect);
 
 		glfwSwapBuffers(window);
 	}
 
 	glfwTerminate();
+
+}
+
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (rect.firstMouse) {
+		rect.lastX = xpos;
+		rect.lastY = ypos;
+		rect.firstMouse = false;
+	}
+
+	float sensitivity = 0.1;
+
+	rect.xOffset = sensitivity * (xpos - rect.lastX);
+	rect.yOffset = sensitivity * (rect.lastY - ypos);
+
+	rect.lastX = xpos; 
+	rect.lastY = ypos;
 
 }
