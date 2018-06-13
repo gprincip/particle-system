@@ -4,7 +4,7 @@ layout (local_size_x = 128) in;
 
 layout (rgba32f, binding = 0) uniform imageBuffer position_buffer;
 
-uniform float dt;
+//uniform float dt;
 uniform int currentVectorField;
 
 void main(void)
@@ -22,7 +22,6 @@ void main(void)
 	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, (sigma * (pos.y - pos.x))/divider , (ro*pos.x - pos.y - pos.x * pos.z)/divider , (pos.x*pos.y - beta*pos.z)/divider , 1.0);
 	}
 
-	//Aizawa Attractor
 	if(currentVectorField == 2) {
 	divider = 50.0f;
 	float a = 2.2f;
@@ -33,12 +32,12 @@ void main(void)
 	float z = tan(pos.z);
 	
 	//translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, 0.1, sin(pos.x) + cos(pos.y), sin(pos.z), 1.0);
-	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  x/divider*dt , y/divider*dt , z/divider*dt, 1.0);
+	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  x/divider , y/divider , z/divider, 1.0);
 	}
 	
 	if(currentVectorField == 3) {
 	divider = 50;
-	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  (-pos.y/divider * pos.z/divider)*dt, (2*pos.x/divider * pos.z/divider)*dt, 0.0, 1.0);
+	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  (-pos.y/divider * pos.z/divider), (2*pos.x/divider * pos.z/divider), 0.0, 1.0);
 	}
 
 	//Roslerov atraktor
@@ -47,7 +46,7 @@ void main(void)
 	float b = 0.1f;
 	float c = 14.0f;
 	divider = 50;
-	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, (-pos.y - pos.z)/divider*dt , (pos.x + a * pos.y)/divider*dt , (b + pos.z * (pos.x - c))/divider*dt , 1.0);
+	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, (-pos.y - pos.z)/divider , (pos.x + a * pos.y)/divider , (b + pos.z * (pos.x - c))/divider , 1.0);
 	}
 
 	//No vector field

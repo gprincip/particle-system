@@ -190,8 +190,8 @@ void Rectangle::Render(GLfloat aspect)
 		-1 + 8 * sx, 1 - 30 * sy, sx, sy);
 
 	//Sending delta time to shader so the movement of particles is less afected by framerate
-	glUseProgram(compute_prog);
-	glUniform1f(dt_location, ((endTime - startTime) * 1000));
+	//glUseProgram(compute_prog);
+	//glUniform1f(dt_location, ((endTime - startTime) * 1000));
 
 }
 
@@ -211,7 +211,7 @@ void Rectangle::init_ParticleShader()
 	shader.setUpShader("core.vs", "core.frag", "core.comp");
 	render_prog = shader.programNonComputeShader;
 	compute_prog = shader.programComputeShader;
-	dt_location = glGetUniformLocation(compute_prog, "dt");
+	//dt_location = glGetUniformLocation(compute_prog, "dt");
 }
 
 void Rectangle::init_TextRenderingShader() {
