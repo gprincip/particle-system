@@ -13,7 +13,7 @@
 enum
 {
 	PARTICLE_GROUP_SIZE = 128,
-	PARTICLE_GROUP_COUNT = 6000,
+	PARTICLE_GROUP_COUNT = 5000,
 	PARTICLE_COUNT = (PARTICLE_GROUP_SIZE * PARTICLE_GROUP_COUNT),
 };
 
@@ -69,11 +69,13 @@ private:
 	FT_Face face;
 	FT_GlyphSlot g;
 
-	float cameraSpeed = 0.6;
+	float cameraSpeed = 0.7;
 
-	glm::vec3 cameraPos;// = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraFront;// = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp;// = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraPos;
+	glm::vec3 cameraFront;
+	glm::vec3 cameraUp;
+
+	int currentVectorField = 1;
 
 public:
 	GLfloat rotationAngle;
@@ -89,30 +91,11 @@ public:
 	float pitch = 0;
 	float yaw = 0;
 
-	// Posisition and velocity buffers
-	union
-	{
-		struct
-		{
-			GLuint position_buffer;
-			GLuint velocity_buffer;
-		};
-		GLuint buffers[2];
-	};
+	// Posisition buffer
+	GLuint position_buffer;
 
 	// TBOs
-	union
-	{
-		struct
-		{
-			GLuint position_tbo;
-			GLuint velocity_tbo;
-		};
-		GLuint tbos[2];
-	};
-
-	// Attractor UBO
-	GLuint  attractor_buffer;
+	GLuint position_tbo;
 
 	// Program, vao and vbo to render a full screen quad
 	GLuint  render_vao;

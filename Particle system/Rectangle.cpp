@@ -46,7 +46,6 @@ void Rectangle::Init()
 {
 	init_buffer();
 	init_vertexArray();
-	
 	init_ParticleShader();
 	init_TextRenderingShader();
 	init_textBufferAndFreetype();
@@ -55,10 +54,12 @@ void Rectangle::Init()
 	lastX = width / 2;
 	lastY = height / 2;
 
-	//Camera is positioned in the origin (0,0,0) and looks towards the negative z-axis
+	//Camera is positioned at the origin (0,0,0) and looks towards the negative z-axis
 	cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	//We initialize yaw at -90 so we are looking towards the negative z axis
 	pitch = 0.0f;
 	yaw = -90.0f;
 }
@@ -77,10 +78,10 @@ void Rectangle::Render(GLfloat aspect)
 	glEnable(GL_BLEND);
 	//this kind of blending must be used for freetype text rendering
 	glBlendFunc(GL_ONE, GL_ONE);
-
+	
 	if (rotationAngle >= 360.0) rotationAngle = 0.0;
 
-	/******************CAMERA MOVEMENT*****************/
+	/******************CAMERA MOVEMENT******************/
 
 	pitch += yOffset; 
 	yaw += xOffset;
@@ -90,10 +91,7 @@ void Rectangle::Render(GLfloat aspect)
 	if (pitch < -89.0f)
 		pitch = -89.0f;
 
-	
 	glm::mat4 projection = glm::perspective(45.0f, aspect, 0.1f, 1000.0f);
-		//glm::translate(0.0f, 0.0f, -70.0f);//*
-		//glm::rotate(/*time * 1000.0f*/ /*rotationAngle+=0.2*/ 0.0f /*150.0f*/, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	glm::mat4 model;
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, -70.0f));
@@ -110,6 +108,11 @@ void Rectangle::Render(GLfloat aspect)
 		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) currentVectorField = 1;
+	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) currentVectorField = 2;
+	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) currentVectorField = 3;
+	if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) currentVectorField = 4;
+	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) currentVectorField = 5;
 
 	glm::vec3 front;
 
@@ -119,14 +122,19 @@ void Rectangle::Render(GLfloat aspect)
 	cameraFront = glm::normalize(front);
 	
 	glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-	cout << cameraPos.x <<","<<cameraPos.y<<","<<cameraPos.z << endl;
+
 	/******************PARTICLES DRAWING*****************/
 
 	glUseProgram(compute_prog);
 	 
-	//Preko tekstura povezujemo bafer i sejder, da sejder moze da cita i upisuje u bafer
+	int currVF = glGetUniformLocation(compute_prog, "currentVectorField");
+	glUniform1i(currVF, currentVectorField);
 
-	glBindImageTexture(1, position_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	//We are passing data to the shader using textures, here we are binding texture
+	//at position 0, and reading it in shader via
+	//layout (rgba32f, binding = 0) uniform imageBuffer position_buffer;
+
+	glBindImageTexture(0, position_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 	
 	//Dispatch
 	glDispatchCompute(PARTICLE_GROUP_COUNT, 1, 1);
@@ -151,22 +159,40 @@ void Rectangle::Render(GLfloat aspect)
 
 	glUseProgram(text_render_prog);
 	glBindVertexArray(fontVao);
-	
-	GLfloat black[4] = { 0.5f, 0.0f, 1.0f, 1.0f };
-	glUniform4fv(uniform_color, 1, black);
 
 	float sx = 2.0 / 1600;
 	float sy = 2.0 / 900;
 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	GLfloat color[4];
+
 	glFinish();
 	double endTime = glfwGetTime();
-	char deltaTime[16];
-	sprintf_s(deltaTime, "ms ~ %.3f",(endTime- startTime)*1000);
+	char deltaTime[50];
+	sprintf_s(deltaTime, "ms ~ %.3f  Number of particles: %d", (endTime - startTime) * 1000, PARTICLE_COUNT);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	render_text(deltaTime,
-		-1 + 8 * sx, 1 - 50 * sy, sx, sy);
+	//Good fps - green, middle - purple, bad - red
 	
+	if ((endTime - startTime) * 1000 <= 10) {
+		color[0] = 0.0f; color[1] = 1.0f; color[2] = 0.0f; color[3] = 1.0f;
+	}
+	else if ((endTime - startTime) * 1000 > 10 && (endTime - startTime) * 1000 <= 20) {
+		color[0] = 0.5f; color[1] = 0.0f; color[2] = 1.0f; color[3] = 1.0f;
+	}
+	else if ((endTime - startTime) * 1000 > 20) {
+		color[0] = 1.0f; color[1] = 0.0f; color[2] = 0.0f; color[3] = 1.0f;
+	}
+
+	glUniform4fv(uniform_color, 1, color);
+
+	render_text(deltaTime,
+		-1 + 8 * sx, 1 - 30 * sy, sx, sy);
+
+	//Sending delta time to shader so the movement of particles is less afected by framerate
+	glUseProgram(compute_prog);
+	glUniform1f(dt_location, ((endTime - startTime) * 1000));
+
 }
 
 void Rectangle::Shutdown()
@@ -197,7 +223,7 @@ void Rectangle::init_TextRenderingShader() {
 
 void Rectangle::init_buffer()
 {
-	glGenVertexArrays(/*2*/ 1, &render_vao);
+	glGenVertexArrays(1, &render_vao);
 	glBindVertexArray(render_vao);
 
 	glGenBuffers(1, &position_buffer);
@@ -224,16 +250,11 @@ void Rectangle::init_buffer()
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
 	
-	glGenTextures(2, tbos);
-
-	for (int i = 0; i < 2; i++)
-	{
-		glBindTexture(GL_TEXTURE_BUFFER, tbos[i]);
-		glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffers[i]);
-	}
+	glGenTextures(1, &position_tbo);
+	glBindTexture(GL_TEXTURE_BUFFER, position_tbo);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, position_buffer);
 
 	glBindVertexArray(0);
-
 }
 
 void Rectangle::init_vertexArray()
@@ -286,7 +307,7 @@ void Rectangle::init_textBufferAndFreetype() {
 		cout << "Could not open font" << endl;
 	}
 
-	FT_Set_Pixel_Sizes(face, 0, 48);
+	FT_Set_Pixel_Sizes(face, 0, 18);
 
 	g = face->glyph;
 }
