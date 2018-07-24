@@ -1,5 +1,6 @@
 
 #include "Rectangle.h"
+#include "Sphere.h"
 #include<Windows.h>
 
 static inline float random_float()
@@ -36,19 +37,15 @@ static inline float random_float_in_range(float min, float max) {
 
 }
 
-//static double distance(glm::vec4 a, glm::vec4 b) {
-//
-//	return sqrt(pow(a[0] - b[0], 2) + pow(a[1] - b[1], 2) + pow(a[2] - b[2], 2));
-//
-//}
-
 void Rectangle::Init()
 {
 	init_buffer();
 	init_vertexArray();
+	init_sphere_shaders();
 	init_ParticleShader();
 	init_TextRenderingShader();
 	init_textBufferAndFreetype();
+	
 	rotationAngle = 0.0f;
 	glfwGetWindowSize(window, &width, &height);
 	lastX = width / 2;
@@ -64,6 +61,12 @@ void Rectangle::Init()
 	yaw = -90.0f;
 }
 
+void Rectangle::drawSphere(int r) {
+
+	
+
+}
+
 void Rectangle::Render(GLfloat aspect)
 {
 
@@ -71,19 +74,12 @@ void Rectangle::Render(GLfloat aspect)
 	glFinish();
 	double startTime = glfwGetTime();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	glDisable(GL_DEPTH_TEST);
 
-	glEnable(GL_BLEND);
-	//this kind of blending must be used for freetype text rendering
-	glBlendFunc(GL_ONE, GL_ONE);
-	
 	if (rotationAngle >= 360.0) rotationAngle = 0.0;
 
 	/******************CAMERA MOVEMENT******************/
 
-	pitch += yOffset; 
+	pitch += yOffset;
 	yaw += xOffset;
 
 	if (pitch > 89.0f)
@@ -99,7 +95,7 @@ void Rectangle::Render(GLfloat aspect)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPos += cameraSpeed * cameraFront;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -120,13 +116,13 @@ void Rectangle::Render(GLfloat aspect)
 	front[1] = sin(glm::radians(pitch));
 	front[2] = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 	cameraFront = glm::normalize(front);
-	
+
 	glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 	/******************PARTICLES DRAWING*****************/
 
 	glUseProgram(compute_prog);
-	 
+
 	int currVF = glGetUniformLocation(compute_prog, "currentVectorField");
 	glUniform1i(currVF, currentVectorField);
 
@@ -135,7 +131,7 @@ void Rectangle::Render(GLfloat aspect)
 	//layout (rgba32f, binding = 0) uniform imageBuffer position_buffer;
 
 	glBindImageTexture(0, position_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-	
+
 	//Dispatch
 	glDispatchCompute(PARTICLE_GROUP_COUNT, 1, 1);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -155,6 +151,32 @@ void Rectangle::Render(GLfloat aspect)
 	//glPointSize(3.0f);
 	glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
 
+	/****************SPHERES DRAWING****************/
+
+	glUseProgram(sphere_program);
+
+	glBindVertexArray(sphere_vao);
+	
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*6*3*mesh.faces.size(), mesh.getVertices(), GL_DYNAMIC_COPY);
+
+	//position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	//color	
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	projection_location = glGetUniformLocation(sphere_program, "projection");
+	view_location = glGetUniformLocation(sphere_program, "view");
+	model_location = glGetUniformLocation(sphere_program, "model");
+
+	glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+	glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3*mesh.faces.size());
+
 	/******************TEXT DRAWING*****************/
 
 	glUseProgram(text_render_prog);
@@ -173,7 +195,7 @@ void Rectangle::Render(GLfloat aspect)
 	sprintf_s(deltaTime, "ms ~ %.3f  Number of particles: %d", (endTime - startTime) * 1000, PARTICLE_COUNT);
 
 	//Good fps - green, middle - purple, bad - red
-	
+
 	if ((endTime - startTime) * 1000 <= 10) {
 		color[0] = 0.0f; color[1] = 1.0f; color[2] = 0.0f; color[3] = 1.0f;
 	}
@@ -352,4 +374,17 @@ void Rectangle::render_text(const char *text, float x, float y, float sx, float 
 
 }
 
+void Rectangle::init_sphere_shaders() {
 
+	shader.setUpShader("sphereShader.vs", "sphereShader.frag", "");
+	sphere_program = shader.programNonComputeShader;
+	
+	//for (Face f : mesh.faces)
+		//f.normalize(sphere.x, sphere.y, sphere.z);
+
+	sphere.subdivide(3,sphere.x , sphere.y, sphere.z);
+
+	glGenBuffers(1, &sphere_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, sphere_vbo);
+	glGenVertexArrays(1, &sphere_vao);
+}

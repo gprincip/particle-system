@@ -8,6 +8,7 @@
 #include"GL\glfw3.h"
 #include"GL\glm\common.hpp"
 #include"GL\glm\gtc\matrix_transform.hpp"
+#include "Sphere.h"
 #include FT_FREETYPE_H
 
 enum
@@ -30,6 +31,7 @@ public:
 	void Render(GLfloat aspect);
 	void Shutdown();
 	//void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+	void drawSphere(int r);
 
 private:
 	void init_ParticleShader();
@@ -38,8 +40,10 @@ private:
 	void init_vertexArray();
 	void init_textBufferAndFreetype();
 	void render_text(const char *text, float x, float y, float sx, float sy);
+	void init_sphere_shaders();
 private:
-
+	Sphere sphere;
+	GLint sphere_program;
 	int width = 0, height = 0;
 
 	GLuint vao;
@@ -100,6 +104,10 @@ public:
 	// Program, vao and vbo to render a full screen quad
 	GLuint  render_vao;
 	GLuint  render_vbo;
+
+	//Buffers for sphere rendering
+	GLuint sphere_vao;
+	GLuint sphere_vbo;
 };
 
 

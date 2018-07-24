@@ -17,7 +17,7 @@ Rectangle rect;
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 void main() {
-	
+
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -49,6 +49,7 @@ void main() {
 	
 	rect.window = window;
 	rect.Init();
+
 	glfwSetCursorPosCallback(window, mouse_callback);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -58,9 +59,16 @@ void main() {
 		rect.yOffset = 0.0;
 		//Check for events
 		glfwPollEvents();
+		
+		//Kada se renderuju sfere, iskljuci blendovanje i ukljuci depth test
 
-		static const glm::vec4 bgColor(0.2f, 0.4f, 0.5f, 1.0f);
-		glClearBufferfv(GL_COLOR, 0, &bgColor[0]);
+		//glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		//glDisable(GL_BLEND);
+
 		float aspect = (float)screenWidth / (float)screenHeight;
 		rect.Render(aspect);
 
