@@ -1,7 +1,6 @@
 #include "Face.h"
-#include "Mesh_global.h"
 
-void Face::subdivide(float x, float y, float z) {
+std::vector<Face> Face::subdivide(float r, float x, float y, float z) {
 
 	float t1n[3];
 	float t2n[3];
@@ -35,9 +34,7 @@ void Face::subdivide(float x, float y, float z) {
 	fNew.r = rand() / (float)RAND_MAX;
 	fNew.g = rand() / (float)RAND_MAX;
 	fNew.b = rand() / (float)RAND_MAX;
-	fNew.normalize(x,y,z);
-
-	mesh.faces.push_back(fNew);
+	fNew.normalize(r,x,y,z);
 
 	Face fNew2;
 	fNew2.t1[0] = t3n[0];
@@ -55,9 +52,7 @@ void Face::subdivide(float x, float y, float z) {
 	fNew2.r = rand() / (float)RAND_MAX;
 	fNew2.g = rand() / (float)RAND_MAX;
 	fNew2.b = rand() / (float)RAND_MAX;
-	fNew2.normalize(x, y, z);
-
-	mesh.faces.push_back(fNew2);
+	fNew2.normalize(r, x, y, z);
 
 	Face fNew3;
 	fNew3.t1[0] = t1n[0];
@@ -75,9 +70,7 @@ void Face::subdivide(float x, float y, float z) {
 	fNew3.r = rand() / (float)RAND_MAX;
 	fNew3.g = rand() / (float)RAND_MAX;
 	fNew3.b = rand() / (float)RAND_MAX;
-	fNew3.normalize(x, y, z);
-
-	mesh.faces.push_back(fNew3);
+	fNew3.normalize(r, x, y, z);
 
 	t2[0] = t1n[0];
 	t2[1] = t1n[1];
@@ -87,15 +80,18 @@ void Face::subdivide(float x, float y, float z) {
 	t3[1] = t3n[1];
 	t3[2] = t3n[2];
 
-	normalize(x, y, z);
+	normalize(r, x, y, z);
 
-	//Ovo dodajem jer koristim 2 mesa, stari i trenutni. Kada stari dodje do ovog poslednjeg trougla
-	//koji nije novi, nego stari i treba samo da azurira vrednosti temena, njega ne ubacuje u trenutni
-	//mesh, pa mora ovako.
-	mesh.faces.push_back(*this);
+	//Returns 4 new faces made from the original (this) face
+	std::vector<Face> newFaces;
+	newFaces.push_back(fNew);
+	newFaces.push_back(fNew2);
+	newFaces.push_back(fNew3);
+	newFaces.push_back(*this);
+	return newFaces;
 }
 
-void Face::normalize(float x, float y, float z) {
+void Face::normalize(float r, float x, float y, float z) {
 
 	//Transliraj duz (c,t) u nulu da bi je normalizovao (kao vektor)
 	//c - centar kruga
@@ -139,6 +135,20 @@ void Face::normalize(float x, float y, float z) {
 	t3x /= t3Norm;
 	t3y /= t3Norm;
 	t3z /= t3Norm;
+
+	//Podesi precnik
+
+	t1x *= r;
+	t1y *= r;
+	t1z *= r;
+
+	t2x *= r;
+	t2y *= r;
+	t2z *= r;
+
+	t3x *= r;
+	t3y *= r;
+	t3z *= r;
 
 	//Vrati normalizovane duzi u centar kruga
 

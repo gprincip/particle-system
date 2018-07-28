@@ -1,5 +1,7 @@
 #pragma once
 #include"GL\glm\common.hpp"
+#include"GL\glm\gtc\matrix_transform.hpp"
+#include<vector>
 
 class Face {
 public:
@@ -12,8 +14,7 @@ public:
 	float g; 
 	float b;
 
-	void subdivide(float x, float y, float z);
+	std::vector<Face> subdivide(float r, float x, float y, float z);
 
-	void normalize(float x, float y, float z);
-
+	void normalize(float r, float x, float y, float z);
 };

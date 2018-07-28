@@ -19,7 +19,7 @@ void main(void)
 	float sigma = 10.0;
 	float ro = 28.0;
 	float beta = 8.0/3.0;
-	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, (sigma * (pos.y - pos.x))/divider , (ro*pos.x - pos.y - pos.x * pos.z)/divider , (pos.x*pos.y - beta*pos.z)/divider , 1.0);
+	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, (sigma * (pos.y - pos.x))/divider , (ro*pos.x - pos.y - pos.x * pos.z)/divider , (pos.x*pos.y - beta*pos.z)/divider , 1.0);
 	}
 
 	if(currentVectorField == 2) {

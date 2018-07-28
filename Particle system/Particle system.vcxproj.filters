@@ -27,12 +27,6 @@
     <ClInclude Include="Face.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh_global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -62,6 +56,9 @@
     <None Include="sphereShader.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="sphereShader.comp">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Rectangle.cpp">
@@ -71,9 +68,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Face.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh_global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sphere.cpp">

@@ -133,8 +133,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Face.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Mesh_global.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Sphere.h" />
@@ -147,12 +145,12 @@
     <None Include="core.vs" />
     <None Include="fontFragmentShader.frag" />
     <None Include="fontVertexShader.vs" />
+    <None Include="sphereShader.comp" />
     <None Include="sphereShader.frag" />
     <None Include="sphereShader.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Face.cpp" />
-    <ClCompile Include="Mesh_global.cpp" />
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Sphere.cpp" />

@@ -40,10 +40,26 @@ private:
 	void init_vertexArray();
 	void init_textBufferAndFreetype();
 	void render_text(const char *text, float x, float y, float sx, float sy);
-	void init_sphere_shaders();
+	void init_sphere();
 private:
-	Sphere sphere;
+
+	//Buffers for sphere rendering
+	GLuint sphere_vao;
+	GLuint sphere_vbo;
+
 	GLint sphere_program;
+	GLint sphere_compute_program;
+	GLuint sphere_position_buffer;
+	GLuint sphere_tbo;
+	
+	GLuint sphere_storage_buffer_object;
+
+	float *sphere_vertices;
+	GLuint sphere_centers_buffer;
+
+	std::vector<Sphere> spheres;
+	int nFloats; //number of floats in sphere vbo
+
 	int width = 0, height = 0;
 
 	GLuint vao;
@@ -101,13 +117,8 @@ public:
 	// TBOs
 	GLuint position_tbo;
 
-	// Program, vao and vbo to render a full screen quad
 	GLuint  render_vao;
-	GLuint  render_vbo;
 
-	//Buffers for sphere rendering
-	GLuint sphere_vao;
-	GLuint sphere_vbo;
 };
 
 
