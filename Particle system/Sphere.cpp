@@ -2,7 +2,7 @@
 
 Sphere::Sphere() {}
 
-void Sphere::constructSphere(int r, float cx, float cy, float cz) {
+void Sphere::constructSphere(float r, float cx, float cy, float cz) {
 
 	x = cx;
 	y = cy;
@@ -10,6 +10,7 @@ void Sphere::constructSphere(int r, float cx, float cy, float cz) {
 	this->r = r;
 
 	Face f1;
+	f1.normalize(r, x, y, z);
 
 	f1.t1[0] = cx + 1.0f;
 	f1.t1[1] = cy;
@@ -28,6 +29,7 @@ void Sphere::constructSphere(int r, float cx, float cy, float cz) {
 	f1.b = rand() / (float)RAND_MAX;
 
 	Face f2;
+	f2.normalize(r, x, y, z);
 
 	f2.t1[0] = cx;
 	f2.t1[1] = cy;
@@ -46,6 +48,7 @@ void Sphere::constructSphere(int r, float cx, float cy, float cz) {
 	f2.b = rand() / (float)RAND_MAX;
 
 	Face f3;
+	f3.normalize(r, x, y, z);
 
 	f3.t1[0] = cx;
 	f3.t1[1] = cy;
@@ -64,6 +67,7 @@ void Sphere::constructSphere(int r, float cx, float cy, float cz) {
 	f3.b = rand() / (float)RAND_MAX;
 
 	Face f4;
+	f4.normalize(r, x, y, z);
 
 	f4.t1[0] = cx;
 	f4.t1[1] = cy;
@@ -82,6 +86,7 @@ void Sphere::constructSphere(int r, float cx, float cy, float cz) {
 	f4.b = rand() / (float)RAND_MAX;
 
 	Face f5;
+	f5.normalize(r, x, y, z);
 
 	f5.t1[0] = cx + 1.0f;
 	f5.t1[1] = cy;
@@ -100,6 +105,7 @@ void Sphere::constructSphere(int r, float cx, float cy, float cz) {
 	f5.b = rand() / (float)RAND_MAX;
 
 	Face f6;
+	f6.normalize(r, x, y, z);
 
 	f6.t1[0] = cx;
 	f6.t1[1] = cy - 1.0f;
@@ -118,6 +124,7 @@ void Sphere::constructSphere(int r, float cx, float cy, float cz) {
 	f6.b = rand() / (float)RAND_MAX;
 
 	Face f7;
+	f7.normalize(r, x, y, z);
 
 	f7.t1[0] = cx + 1.0f;
 	f7.t1[1] = cy;
@@ -136,6 +143,7 @@ void Sphere::constructSphere(int r, float cx, float cy, float cz) {
 	f7.b = rand() / (float)RAND_MAX;
 
 	Face f8;
+	f8.normalize(r, x, y, z);
 
 	f8.t1[0] = cx;
 	f8.t1[1] = cy;

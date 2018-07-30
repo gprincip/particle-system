@@ -12,7 +12,7 @@ public:
 
 	Sphere();
 
-	void constructSphere(int r, float cx, float cy, float cz);
+	void constructSphere(float r, float cx, float cy, float cz);
 
 	int getNumberOfFloats() {
 		return (faces.size() * 6 * 3);

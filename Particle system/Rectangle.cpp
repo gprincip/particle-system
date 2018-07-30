@@ -43,9 +43,10 @@ void Rectangle::Init()
 	init_vertexArray();
 	init_sphere();
 	init_ParticleShader();
+	init_lines();
 	init_TextRenderingShader();
 	init_textBufferAndFreetype();
-	
+
 	rotationAngle = 0.0f;
 	glfwGetWindowSize(window, &width, &height);
 	lastX = width / 2;
@@ -60,12 +61,7 @@ void Rectangle::Init()
 	pitch = 0.0f;
 	yaw = -90.0f;
 
-}
-
-void Rectangle::drawSphere(int r) {
-
-	
-
+	lineIndex = 0;
 }
 
 void Rectangle::Render(GLfloat aspect)
@@ -149,18 +145,26 @@ void Rectangle::Render(GLfloat aspect)
 	int projection_location = glGetUniformLocation(render_prog, "projection");
 	glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
 
-	glPointSize(5.0f);
+	//glPointSize(5.0f);
 	//glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
 	glBindVertexArray(0);
 
 	/****************SPHERES DRAWING****************/
-	glUseProgram(sphere_compute_program);
+	//Disable blending so the spheres arent transparent
 
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glUseProgram(sphere_compute_program);
 	glBindVertexArray(sphere_vao);
+
+	int lineIndex_location = glGetUniformLocation(sphere_compute_program, "lineIndex");
+	glUniform1i(lineIndex_location, lineIndex);
+	lineIndex += 6*spheres.size();
+	
 	glDispatchCompute(36, 1, 1);
 
 	glUseProgram(sphere_program);
-	
+
 	projection_location = glGetUniformLocation(sphere_program, "projection");
 	view_location = glGetUniformLocation(sphere_program, "view");
 	model_location = glGetUniformLocation(sphere_program, "model");
@@ -170,7 +174,27 @@ void Rectangle::Render(GLfloat aspect)
 	glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
 
 	glDrawArrays(GL_TRIANGLES, 0, nFloats/6);
+	
 
+	/******************LINES DRAWING*****************/
+
+	glUseProgram(line_program);
+	glBindVertexArray(line_vao);
+
+	projection_location = glGetUniformLocation(line_program, "projection");
+	view_location = glGetUniformLocation(line_program, "view");
+	model_location = glGetUniformLocation(line_program, "model");
+
+	glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+	glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
+
+	//glPointSize(5);
+		
+	glDrawArrays(GL_LINES, 0, 1024 * 1024);
+	
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
 	/******************TEXT DRAWING*****************/
 
 	glUseProgram(text_render_prog);
@@ -270,6 +294,7 @@ void Rectangle::init_buffer()
 	glBindTexture(GL_TEXTURE_BUFFER, position_tbo);
 	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, position_buffer);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
@@ -282,6 +307,7 @@ void Rectangle::init_vertexArray()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
@@ -304,15 +330,14 @@ void Rectangle::init_textBufferAndFreetype() {
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glGenVertexArrays(1, &fontVao);
-	glGenBuffers(1, &fontVbo);
-
 	glBindVertexArray(fontVao);
+
+	glGenBuffers(1, &fontVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
 
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
-	
-	glBindVertexArray(0); //unbind
+
 	
 
 	if (FT_Init_FreeType(&ft)) {
@@ -326,9 +351,15 @@ void Rectangle::init_textBufferAndFreetype() {
 	FT_Set_Pixel_Sizes(face, 0, 18);
 
 	g = face->glyph;
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0); //unbind
 }
 
 void Rectangle::render_text(const char *text, float x, float y, float sx, float sy) {
+
+	glBindVertexArray(fontVao);
+
 	const char *p;
 
 	for (p = text; *p; p++) {
@@ -359,13 +390,17 @@ void Rectangle::render_text(const char *text, float x, float y, float sx, float 
 			{ x2 + w, -y2 - h, 1, 1 },
 		};
 
+		glBindBuffer(GL_ARRAY_BUFFER, fontVbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof box, box, GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		x += (g->advance.x / 64) * sx;
 		y += (g->advance.y / 64) * sy;
 	}
 
+	glBindVertexArray(0);
+	
 }
 
 void Rectangle::init_sphere() {
@@ -374,14 +409,13 @@ void Rectangle::init_sphere() {
 	sphere_program = shader.programNonComputeShader;
 	sphere_compute_program = shader.programComputeShader;
 
-	
-	spheres.push_back(*new Sphere());
-	spheres.push_back(*new Sphere());
-	//spheres.push_back(*new Sphere());
+	for (int i = 0; i < 1; i++) {
+		spheres.push_back(*new Sphere());
+	}
 
 	for (int i = 0; i < spheres.size(); i++) {
-		spheres[i].constructSphere(4, 6.0f+i, 0.1f+i/2.0, 0.2f+ 0.4*i);
-		spheres[i].subdivide(3);
+		spheres[i].constructSphere(4.0f, 0.0f+5*i, 0.1f+i/2.0, 0.2f+ 3*i);
+		spheres[i].subdivide(2);
 	}
 
 	//Data for vertices for all spheres collected inside one array
@@ -438,5 +472,56 @@ void Rectangle::init_sphere() {
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sphere_centers.size() * sizeof(float), &sphere_centers[0], GL_DYNAMIC_COPY);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, sphere_centers_buffer);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-		
+
+}
+
+void Rectangle::init_lines() {
+	
+	shader.setUpShader("line.vs", "line.frag", "");
+	line_program = shader.programNonComputeShader;
+
+	glGenVertexArrays(1, &line_vao);
+	glBindVertexArray(line_vao);
+
+	glGenBuffers(1, &line_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, line_vbo);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	
+	//Capacity for milion vertices
+	glBufferData(GL_ARRAY_BUFFER, 1024 * 1024 * 3 * sizeof(float), NULL, GL_DYNAMIC_COPY);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, line_vbo);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, line_vbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	glBindVertexArray(0);
+	
+}
+
+//Returns the new expanded buffer
+GLuint Rectangle::expandBuffer(GLuint buffer, GLint numOfBytes) {
+
+	void *p1, *p2;
+
+	GLuint newBuffer;
+	glGenBuffers(1, &newBuffer);
+	GLint size;
+	glBindBuffer(GL_COPY_READ_BUFFER, buffer);
+	glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
+
+	glBindBuffer(GL_COPY_WRITE_BUFFER, newBuffer);
+
+	glBufferData(GL_COPY_WRITE_BUFFER, size + numOfBytes, NULL, GL_DYNAMIC_COPY);
+
+	if(size > 0)
+	glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER,0 ,0 ,size);
+
+	glBindBuffer(GL_COPY_READ_BUFFER, 0);
+	glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+	
+	glDeleteBuffers(1, &buffer);
+
+	return newBuffer;
 }

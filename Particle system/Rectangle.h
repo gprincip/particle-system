@@ -30,8 +30,6 @@ public:
 	void Init();
 	void Render(GLfloat aspect);
 	void Shutdown();
-	//void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-	void drawSphere(int r);
 
 private:
 	void init_ParticleShader();
@@ -41,6 +39,8 @@ private:
 	void init_textBufferAndFreetype();
 	void render_text(const char *text, float x, float y, float sx, float sy);
 	void init_sphere();
+	void init_lines();
+	GLuint expandBuffer(GLuint buffer, GLint numOfBytes);
 private:
 
 	//Buffers for sphere rendering
@@ -59,6 +59,11 @@ private:
 
 	std::vector<Sphere> spheres;
 	int nFloats; //number of floats in sphere vbo
+
+	GLint line_program;
+	GLuint line_vao;
+	GLuint line_vbo;
+	GLint lineIndex;
 
 	int width = 0, height = 0;
 
@@ -120,5 +125,3 @@ public:
 	GLuint  render_vao;
 
 };
-
-

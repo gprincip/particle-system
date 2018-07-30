@@ -145,6 +145,8 @@
     <None Include="core.vs" />
     <None Include="fontFragmentShader.frag" />
     <None Include="fontVertexShader.vs" />
+    <None Include="line.frag" />
+    <None Include="line.vs" />
     <None Include="sphereShader.comp" />
     <None Include="sphereShader.frag" />
     <None Include="sphereShader.vs" />
