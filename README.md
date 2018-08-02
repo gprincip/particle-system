@@ -1,4 +1,5 @@
-# Vector field / Dynamic systems visualization tool using particle system
+# Vector field / Dynamical system visualization tool using particle system
+
 ![alt text](https://i.imgur.com/ks9vTZt.png)
 ![alt text](https://i.imgur.com/PgCzBjQ.png)
 ![alt text](https://i.imgur.com/eaqVdA6.png)
