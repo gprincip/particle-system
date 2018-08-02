@@ -6,16 +6,16 @@ class Sphere {
 
 public:
 
-	float x, y, z, r;
+	float x, y, z, r, red, green, blue;
 
 	std::vector<Face> faces;
 
 	Sphere();
 
-	void constructSphere(float r, float cx, float cy, float cz);
+	void constructSphere(float r, float cx, float cy, float cz, float red, float green, float blue);
 
 	int getNumberOfFloats() {
-		return (faces.size() * 6 * 3);
+		return (faces.size() * 9 * 3);
 	}
 
 	void subdivide(int iterations);

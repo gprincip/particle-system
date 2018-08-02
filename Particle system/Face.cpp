@@ -1,6 +1,6 @@
 #include "Face.h"
 
-std::vector<Face> Face::subdivide(float r, float x, float y, float z) {
+std::vector<Face> Face::subdivide(float r, float x, float y, float z, float red, float green, float blue) {
 
 	float t1n[3];
 	float t2n[3];
@@ -31,9 +31,9 @@ std::vector<Face> Face::subdivide(float r, float x, float y, float z) {
 	fNew.t3[1] = t2n[1];
 	fNew.t3[2] = t2n[2];
 
-	fNew.r = rand() / (float)RAND_MAX;
-	fNew.g = rand() / (float)RAND_MAX;
-	fNew.b = rand() / (float)RAND_MAX;
+	fNew.r = red;
+	fNew.g = green;
+	fNew.b = blue;
 	fNew.normalize(r,x,y,z);
 
 	Face fNew2;
@@ -49,9 +49,9 @@ std::vector<Face> Face::subdivide(float r, float x, float y, float z) {
 	fNew2.t3[1] = t3[1];
 	fNew2.t3[2] = t3[2];
 
-	fNew2.r = rand() / (float)RAND_MAX;
-	fNew2.g = rand() / (float)RAND_MAX;
-	fNew2.b = rand() / (float)RAND_MAX;
+	fNew2.r = red;
+	fNew2.g = green;
+	fNew2.b = blue;
 	fNew2.normalize(r, x, y, z);
 
 	Face fNew3;
@@ -67,9 +67,9 @@ std::vector<Face> Face::subdivide(float r, float x, float y, float z) {
 	fNew3.t3[1] = t3n[1];
 	fNew3.t3[2] = t3n[2];
 
-	fNew3.r = rand() / (float)RAND_MAX;
-	fNew3.g = rand() / (float)RAND_MAX;
-	fNew3.b = rand() / (float)RAND_MAX;
+	fNew3.r = red;
+	fNew3.g = green;
+	fNew3.b = blue;
 	fNew3.normalize(r, x, y, z);
 
 	t2[0] = t1n[0];
@@ -88,6 +88,7 @@ std::vector<Face> Face::subdivide(float r, float x, float y, float z) {
 	newFaces.push_back(fNew2);
 	newFaces.push_back(fNew3);
 	newFaces.push_back(*this);
+
 	return newFaces;
 }
 
@@ -163,4 +164,5 @@ void Face::normalize(float r, float x, float y, float z) {
 	t3[0] = t3x + x;
 	t3[1] = t3y + y;
 	t3[2] = t3z + z;
+
 }

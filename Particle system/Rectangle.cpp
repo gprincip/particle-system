@@ -160,10 +160,14 @@ void Rectangle::Render(GLfloat aspect)
 	int lineIndex_location = glGetUniformLocation(sphere_compute_program, "lineIndex");
 	glUniform1i(lineIndex_location, lineIndex);
 	lineIndex += 6*spheres.size();
-	
+
+
 	glDispatchCompute(36, 1, 1);
 
 	glUseProgram(sphere_program);
+
+	int viewPos_location = glGetUniformLocation(sphere_program, "cameraPos");
+	glUniform3f(viewPos_location, cameraPos[0], cameraPos[1], cameraPos[2]);
 
 	projection_location = glGetUniformLocation(sphere_program, "projection");
 	view_location = glGetUniformLocation(sphere_program, "view");
@@ -173,9 +177,8 @@ void Rectangle::Render(GLfloat aspect)
 	glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
 
-	glDrawArrays(GL_TRIANGLES, 0, nFloats/6);
+	glDrawArrays(GL_TRIANGLES, 0, nFloats/9);
 	
-
 	/******************LINES DRAWING*****************/
 
 	glUseProgram(line_program);
@@ -409,13 +412,13 @@ void Rectangle::init_sphere() {
 	sphere_program = shader.programNonComputeShader;
 	sphere_compute_program = shader.programComputeShader;
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 3; i++) {
 		spheres.push_back(*new Sphere());
 	}
 
 	for (int i = 0; i < spheres.size(); i++) {
-		spheres[i].constructSphere(4.0f, 0.0f+5*i, 0.1f+i/2.0, 0.2f+ 3*i);
-		spheres[i].subdivide(2);
+		spheres[i].constructSphere(5.0f, 0.0f+5*i, 0.1f+i/2.0, 0.2f+ 3*i, 0.5f, 0.5f, 0.5f);
+		spheres[i].subdivide(3);
 	}
 
 	//Data for vertices for all spheres collected inside one array
@@ -448,6 +451,15 @@ void Rectangle::init_sphere() {
 
 	glUseProgram(0);
 
+	glUseProgram(sphere_program);
+
+	float lightPos[] = { -100.0f, 100.0f, 0.0f };
+
+	int lightPos_locaton = glGetUniformLocation(sphere_program, "lightPos");
+	glUniform3fv(lightPos_locaton ,1, &lightPos[0]) ;
+
+	glUseProgram(0);
+
 	glGenVertexArrays(1, &sphere_vao);
 	glBindVertexArray(sphere_vao);
 
@@ -456,13 +468,17 @@ void Rectangle::init_sphere() {
 	glBufferData(GL_ARRAY_BUFFER, nFloats * sizeof(float) , &vertexData[0], GL_DYNAMIC_COPY);
 
 	//position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
 	//color	
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	
+	//Normal
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, sphere_vbo);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER,0, sphere_vbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
