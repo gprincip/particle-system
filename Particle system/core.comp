@@ -20,9 +20,9 @@ void main(void)
 	float ro = 28.0;
 	float beta = 8.0/3.0;
 	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, (sigma * (pos.y - pos.x))/divider , (ro*pos.x - pos.y - pos.x * pos.z)/divider , (pos.x*pos.y - beta*pos.z)/divider , 1.0);
-	}
+	
+	} else if (currentVectorField == 2) {
 
-	if(currentVectorField == 2) {
 	divider = 50.0f;
 	float a = 2.2f;
 	float b = 0.001f;
@@ -33,25 +33,26 @@ void main(void)
 	
 	//translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, 0.1, sin(pos.x) + cos(pos.y), sin(pos.z), 1.0);
 	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  x/divider , y/divider , z/divider, 1.0);
-	}
 	
-	if(currentVectorField == 3) {
+	}else if(currentVectorField == 3) {
+
 	divider = 50;
 	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0,  (-pos.y/divider * pos.z/divider), (2*pos.x/divider * pos.z/divider), 0.0, 1.0);
-	}
-
+	
 	//Roslerov atraktor
-	if(currentVectorField == 4) {
+	}else if(currentVectorField == 4) {
+
 	float a = 0.1f;
 	float b = 0.1f;
 	float c = 14.0f;
 	divider = 50;
 	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, (-pos.y - pos.z)/divider , (pos.x + a * pos.y)/divider , (b + pos.z * (pos.x - c))/divider , 1.0);
-	}
 
 	//No vector field
-	if(currentVectorField == 5){
+	}else if(currentVectorField == 5){
+	
 	translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, 0.0 , 0.0 , 0.0 , 1.0);
+	
 	}
 
 	pos.xyz = (translation * vec4(pos.xyz, 1.0)).xyz;

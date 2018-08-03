@@ -16,11 +16,14 @@ layout(std430, binding = 2) buffer linesBuffer{
 
 uniform int verticesPerSphere;
 uniform int lineIndex;
+uniform int currentVF;
+
 int lineIndexTemp = lineIndex;
 
 void main(){
 
-	 mat4 translation;
+	 mat4 translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, 0.0 , 0.0 , 0.0 , 1.0);
+
 	 float divider;
 
 	 int centerIndex = 0;
@@ -32,12 +35,47 @@ void main(){
 			float cy = centers[centerIndex+1];
 			float cz = centers[centerIndex+2];
 
-			divider = 120.0f;
-			float sigma = 10.0;
-			float ro = 28.0;
-			float beta = 8.0/3.0;
-			translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, (sigma * (cy - cx))/divider,
-	        (ro*cx - cy - cx * cz)/divider , (cx*cy - beta*cz)/divider , 1.0);
+			//Lorencov atraktor
+			if(currentVF == 1){
+			
+				divider = 100.0f;
+				float sigma = 10.0;
+				float ro = 28.0;
+				float beta = 8.0/3.0;
+			
+				translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, (sigma * (cy - cx))/divider,
+				(ro*cx - cy - cx * cz)/divider , (cx*cy - beta*cz)/divider , 1.0);
+			
+			}else if(currentVF == 2){
+			
+				divider = 50.0f;
+
+				float x = sin(cx);
+				float y = cos(cy);
+				float z = tan(cz);
+
+				translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, x/divider, y/divider, z/divider, 1.0);
+
+			}else if(currentVF == 3){
+			
+				divider = 50;
+				translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, (-cy/divider * cz/divider), (2*cx/divider * cz/divider), 0.0, 1.0);
+	
+			}else if(currentVF == 4){
+			
+				//Roslerov atraktor
+				float a = 0.1f;
+				float b = 0.1f;
+				float c = 14.0f;
+				divider = 50;
+				translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, (-cy - cz)/divider , (cx + a * cy)/divider , (b + cz * (cx - c))/divider , 1.0);
+			
+			//No vector field
+			}else if(currentVF == 5){
+
+				translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, 0.0 , 0.0 , 0.0 , 1.0);
+
+			}
 
 			for(int j = i; j < (i + verticesPerSphere); j+=9){
 
@@ -77,5 +115,4 @@ void main(){
 			i += verticesPerSphere;
 
 			}
-			
 }

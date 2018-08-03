@@ -94,9 +94,9 @@ std::vector<Face> Face::subdivide(float r, float x, float y, float z, float red,
 
 void Face::normalize(float r, float x, float y, float z) {
 
-	//Transliraj duz (c,t) u nulu da bi je normalizovao (kao vektor)
-	//c - centar kruga
-	//t - teme trougla
+	//Translate line (c,t) to (0,0,0) and normalize it
+	//c - center of the sphere
+	//t - triangle vertices
 
 	float t1x = t1[0] - x;
 	float t1y = t1[1] - y;
@@ -110,7 +110,7 @@ void Face::normalize(float r, float x, float y, float z) {
 	float t3y = t3[1] - y;
 	float t3z = t3[2] - z;
 
-	//Izracunaj norme
+	//Calculate norms
 
 	float t1Norm = sqrt(
 		t1x * t1x + t1y * t1y + t1z * t1z
@@ -123,7 +123,7 @@ void Face::normalize(float r, float x, float y, float z) {
 		t3x * t3x + t3y * t3y + t3z * t3z
 	);
 
-	//Normalizuj
+	//Normalize
 
 	t1x /= t1Norm;
 	t1y /= t1Norm;
@@ -137,7 +137,7 @@ void Face::normalize(float r, float x, float y, float z) {
 	t3y /= t3Norm;
 	t3z /= t3Norm;
 
-	//Podesi precnik
+	//Set radius
 
 	t1x *= r;
 	t1y *= r;
@@ -151,7 +151,7 @@ void Face::normalize(float r, float x, float y, float z) {
 	t3y *= r;
 	t3z *= r;
 
-	//Vrati normalizovane duzi u centar kruga
+	//Return normalized lines back to the center of the sphere
 
 	t1[0] = t1x + x;
 	t1[1] = t1y + y;

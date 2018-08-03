@@ -120,8 +120,8 @@ void Rectangle::Render(GLfloat aspect)
 
 	glUseProgram(compute_prog);
 
-	int currVF = glGetUniformLocation(compute_prog, "currentVectorField");
-	glUniform1i(currVF, currentVectorField);
+	int currVFLocation = glGetUniformLocation(compute_prog, "currentVectorField");
+	glUniform1i(currVFLocation, currentVectorField);
 
 	//We are passing data to the shader using textures, here we are binding texture
 	//at position 0, and reading it in shader via
@@ -161,13 +161,15 @@ void Rectangle::Render(GLfloat aspect)
 	glUniform1i(lineIndex_location, lineIndex);
 	lineIndex += 6*spheres.size();
 
+	int currVFLocation2 = glGetUniformLocation(sphere_compute_program, "currentVF");
+	glUniform1i(currVFLocation2, currentVectorField);
 
 	glDispatchCompute(36, 1, 1);
 
 	glUseProgram(sphere_program);
 
 	int viewPos_location = glGetUniformLocation(sphere_program, "cameraPos");
-	glUniform3f(viewPos_location, cameraPos[0], cameraPos[1], cameraPos[2]);
+	glUniform3fv(viewPos_location,1, &cameraPos[0]);
 
 	projection_location = glGetUniformLocation(sphere_program, "projection");
 	view_location = glGetUniformLocation(sphere_program, "view");
@@ -412,12 +414,12 @@ void Rectangle::init_sphere() {
 	sphere_program = shader.programNonComputeShader;
 	sphere_compute_program = shader.programComputeShader;
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 2; i++) {
 		spheres.push_back(*new Sphere());
 	}
 
 	for (int i = 0; i < spheres.size(); i++) {
-		spheres[i].constructSphere(5.0f, 0.0f+5*i, 0.1f+i/2.0, 0.2f+ 3*i, 0.5f, 0.5f, 0.5f);
+		spheres[i].constructSphere(4.0f, 0.0f+5*i, 0.1f+i/2.0, 0.2f+ 3*i, 0.6f, 0.6f, 0.6f);
 		spheres[i].subdivide(3);
 	}
 
