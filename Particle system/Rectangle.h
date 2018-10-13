@@ -9,15 +9,8 @@
 #include"GL\glm\common.hpp"
 #include"GL\glm\gtc\matrix_transform.hpp"
 #include "Sphere.h"
+#include "Configuration.h"
 #include FT_FREETYPE_H
-
-enum
-{
-	PARTICLE_GROUP_SIZE = 128,
-	PARTICLE_GROUP_COUNT = 5000,
-	PARTICLE_COUNT = (PARTICLE_GROUP_SIZE * PARTICLE_GROUP_COUNT),
-};
-
 
 class Rectangle
 {
@@ -40,8 +33,9 @@ private:
 	void render_text(const char *text, float x, float y, float sx, float sy);
 	void init_sphere();
 	void init_lines();
-	GLuint expandBuffer(GLuint buffer, GLint numOfBytes);
+
 private:
+	Configuration config;
 
 	//Buffers for sphere rendering
 	GLuint sphere_vao;

@@ -38,7 +38,7 @@ void main(){
 			//Lorencov atraktor
 			if(currentVF == 1){
 			
-				divider = 100.0f;
+				divider = 500.0f;
 				float sigma = 10.0;
 				float ro = 28.0;
 				float beta = 8.0/3.0;

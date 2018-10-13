@@ -14,7 +14,7 @@ static inline float random_float()
 	tmp = seed ^ (seed >> 4) ^ (seed << 15);
 
 	*((unsigned int *)&res) = (tmp >> 9) | 0x3F800000;
-
+	
 	return (res - 1.0f);
 }
 
@@ -39,6 +39,8 @@ static inline float random_float_in_range(float min, float max) {
 
 void Rectangle::Init()
 {
+	config.load_configuration("config.txt");
+
 	init_buffer();
 	init_vertexArray();
 	init_sphere();
@@ -116,127 +118,149 @@ void Rectangle::Render(GLfloat aspect)
 
 	glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
+	int model_location;
+	int view_location;
+	int projection_location;
+
 	/******************PARTICLES DRAWING*****************/
 
-	glUseProgram(compute_prog);
+	if (config.particles) {
 
-	int currVFLocation = glGetUniformLocation(compute_prog, "currentVectorField");
-	glUniform1i(currVFLocation, currentVectorField);
+		glUseProgram(compute_prog);
 
-	//We are passing data to the shader using textures, here we are binding texture
-	//at position 0, and reading it in shader via
-	//layout (rgba32f, binding = 0) uniform imageBuffer position_buffer;
+		int currVFLocation = glGetUniformLocation(compute_prog, "currentVectorField");
+		glUniform1i(currVFLocation, currentVectorField);
 
-	glBindImageTexture(0, position_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+		//We are passing data to the shader using textures, here we are binding texture
+		//at position 0, and reading it in shader via
+		//layout (rgba32f, binding = 0) uniform imageBuffer position_buffer;
 
-	//Dispatch
-	glDispatchCompute(PARTICLE_GROUP_COUNT, 1, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		glBindImageTexture(0, position_tbo, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
-	glBindVertexArray(render_vao);
-	glUseProgram(render_prog);
+		//Dispatch
+		glDispatchCompute(config.PARTICLE_GROUP_COUNT, 1, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-	int model_location = glGetUniformLocation(render_prog, "model");
-	glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
+		glBindVertexArray(render_vao);
+		glUseProgram(render_prog);
 
-	int view_location = glGetUniformLocation(render_prog, "view");
-	glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
+		model_location = glGetUniformLocation(render_prog, "model");
+		glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
 
-	int projection_location = glGetUniformLocation(render_prog, "projection");
-	glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+		view_location = glGetUniformLocation(render_prog, "view");
+		glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
 
-	//glPointSize(5.0f);
-	//glDrawArrays(GL_POINTS, 0, PARTICLE_COUNT);
-	glBindVertexArray(0);
+		projection_location = glGetUniformLocation(render_prog, "projection");
+		glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+
+		//glPointSize(5.0f);
+		glDrawArrays(GL_POINTS, 0, config.getParticleCount());
+		glBindVertexArray(0);
+
+	}
 
 	/****************SPHERES DRAWING****************/
 	//Disable blending so the spheres arent transparent
 
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glUseProgram(sphere_compute_program);
-	glBindVertexArray(sphere_vao);
+	if (config.spheres) {
 
-	int lineIndex_location = glGetUniformLocation(sphere_compute_program, "lineIndex");
-	glUniform1i(lineIndex_location, lineIndex);
-	lineIndex += 6*spheres.size();
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glUseProgram(sphere_compute_program);
+		glBindVertexArray(sphere_vao);
 
-	int currVFLocation2 = glGetUniformLocation(sphere_compute_program, "currentVF");
-	glUniform1i(currVFLocation2, currentVectorField);
+		int lineIndex_location = glGetUniformLocation(sphere_compute_program, "lineIndex");
+		glUniform1i(lineIndex_location, lineIndex);
+		lineIndex += 6 * spheres.size();
 
-	glDispatchCompute(36, 1, 1);
+		int currVFLocation2 = glGetUniformLocation(sphere_compute_program, "currentVF");
+		glUniform1i(currVFLocation2, currentVectorField);
 
-	glUseProgram(sphere_program);
+		glDispatchCompute(36, 1, 1);
 
-	int viewPos_location = glGetUniformLocation(sphere_program, "cameraPos");
-	glUniform3fv(viewPos_location,1, &cameraPos[0]);
+		glUseProgram(sphere_program);
 
-	projection_location = glGetUniformLocation(sphere_program, "projection");
-	view_location = glGetUniformLocation(sphere_program, "view");
-	model_location = glGetUniformLocation(sphere_program, "model");
+		int viewPos_location = glGetUniformLocation(sphere_program, "cameraPos");
+		glUniform3fv(viewPos_location, 1, &cameraPos[0]);
 
-	glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
-	glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
+		projection_location = glGetUniformLocation(sphere_program, "projection");
+		view_location = glGetUniformLocation(sphere_program, "view");
+		model_location = glGetUniformLocation(sphere_program, "model");
 
-	glDrawArrays(GL_TRIANGLES, 0, nFloats/9);
-	
+		glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+		glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
+
+		glDrawArrays(GL_TRIANGLES, 0, nFloats/9);
+
+	}
+
 	/******************LINES DRAWING*****************/
 
-	glUseProgram(line_program);
-	glBindVertexArray(line_vao);
+	if (config.spheres) {
 
-	projection_location = glGetUniformLocation(line_program, "projection");
-	view_location = glGetUniformLocation(line_program, "view");
-	model_location = glGetUniformLocation(line_program, "model");
+		glUseProgram(line_program);
+		glBindVertexArray(line_vao);
 
-	glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
-	glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
+		projection_location = glGetUniformLocation(line_program, "projection");
+		view_location = glGetUniformLocation(line_program, "view");
+		model_location = glGetUniformLocation(line_program, "model");
 
-	//glPointSize(5);
-		
-	glDrawArrays(GL_LINES, 0, 1024 * 1024);
-	
-	glEnable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
+		glUniformMatrix4fv(projection_location, 1, GL_FALSE, &projection[0][0]);
+		glUniformMatrix4fv(view_location, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(model_location, 1, GL_FALSE, &model[0][0]);
+
+		//glPointSize(5);
+
+		glDrawArrays(GL_LINES, 0, 1024 * 1024);
+
+		glEnable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+
+	}
 	/******************TEXT DRAWING*****************/
 
-	glUseProgram(text_render_prog);
-	glBindVertexArray(fontVao);
+		glUseProgram(text_render_prog);
+		glBindVertexArray(fontVao);
 
-	float sx = 2.0 / 1600;
-	float sy = 2.0 / 900;
+		float sx = 2.0 / 1600;
+		float sy = 2.0 / 900;
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	GLfloat color[4];
+		GLfloat color[4];
 
-	glFinish();
-	double endTime = glfwGetTime();
-	char deltaTime[50];
-	sprintf_s(deltaTime, "ms ~ %.3f  Number of particles: %d", (endTime - startTime) * 1000, PARTICLE_COUNT);
+		glFinish();
+		double endTime = glfwGetTime();
+		char deltaTime[50];
 
-	//Good fps - green, middle - purple, bad - red
+		if (config.particles) {
 
-	if ((endTime - startTime) * 1000 <= 10) {
-		color[0] = 0.0f; color[1] = 1.0f; color[2] = 0.0f; color[3] = 1.0f;
-	}
-	else if ((endTime - startTime) * 1000 > 10 && (endTime - startTime) * 1000 <= 20) {
-		color[0] = 0.5f; color[1] = 0.0f; color[2] = 1.0f; color[3] = 1.0f;
-	}
-	else if ((endTime - startTime) * 1000 > 20) {
-		color[0] = 1.0f; color[1] = 0.0f; color[2] = 0.0f; color[3] = 1.0f;
-	}
+			sprintf_s(deltaTime, "ms ~ %.3f  Number of particles: %d", (endTime - startTime) * 1000, config.getParticleCount());
 
-	glUniform4fv(uniform_color, 1, color);
+		}
+		else {
 
-	render_text(deltaTime,
-		-1 + 8 * sx, 1 - 30 * sy, sx, sy);
+			sprintf_s(deltaTime, "ms ~ %.3f", (endTime - startTime) * 1000);
 
-	//Sending delta time to shader so the movement of particles is less afected by framerate
-	//glUseProgram(compute_prog);
-	//glUniform1f(dt_location, ((endTime - startTime) * 1000));
+		}
+
+		//Good fps - green, middle - purple, bad - red
+
+		if ((endTime - startTime) * 1000 <= 10) {
+			color[0] = 0.0f; color[1] = 1.0f; color[2] = 0.0f; color[3] = 1.0f;
+		}
+		else if ((endTime - startTime) * 1000 > 10 && (endTime - startTime) * 1000 <= 20) {
+			color[0] = 0.5f; color[1] = 0.0f; color[2] = 1.0f; color[3] = 1.0f;
+		}
+		else if ((endTime - startTime) * 1000 > 20) {
+			color[0] = 1.0f; color[1] = 0.0f; color[2] = 0.0f; color[3] = 1.0f;
+		}
+
+		glUniform4fv(uniform_color, 1, color);
+
+		render_text(deltaTime,
+			-1 + 8 * sx, 1 - 30 * sy, sx, sy);
 
 }
 
@@ -256,7 +280,6 @@ void Rectangle::init_ParticleShader()
 	shader.setUpShader("core.vs", "core.frag", "core.comp");
 	render_prog = shader.programNonComputeShader;
 	compute_prog = shader.programComputeShader;
-	//dt_location = glGetUniformLocation(compute_prog, "dt");
 }
 
 void Rectangle::init_TextRenderingShader() {
@@ -273,21 +296,21 @@ void Rectangle::init_buffer()
 
 	glGenBuffers(1, &position_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
-	glBufferData(GL_ARRAY_BUFFER, PARTICLE_COUNT * sizeof(glm::vec4), NULL, GL_DYNAMIC_COPY);
+	glBufferData(GL_ARRAY_BUFFER, config.getParticleCount() * sizeof(glm::vec4), NULL, GL_DYNAMIC_COPY);
 
 	glm::vec4 * positions = (glm::vec4 *)glMapBufferRange(GL_ARRAY_BUFFER,
 		0,
-		PARTICLE_COUNT * sizeof(glm::vec4),
+		config.getParticleCount() * sizeof(glm::vec4),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-	for (int i = 0; i < PARTICLE_COUNT; i++)
+	for (int i = 0; i < config.getParticleCount(); i++)
 	{
 	
-		float v1 = random_float_in_range(0, .01);
-		float v2 = random_float_in_range(0, .01);
-		float v3 = random_float_in_range(0, .01);
+		float v1 = random_float_in_range(config.particles_start_position_minx, config.particles_start_position_maxx);
+		float v2 = random_float_in_range(config.particles_start_position_miny, config.particles_start_position_maxy);
+		float v3 = random_float_in_range(config.particles_start_position_minz, config.particles_start_position_maxz);
 
-		positions[i] = glm::vec4(/*random_vector(0.0001 , 0.0002)*/ glm::vec3(v1,v2,v3) , random_float());
+		positions[i] = glm::vec4(glm::vec3(v1,v2,v3) , random_float());
 	}
 
 	glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -414,13 +437,19 @@ void Rectangle::init_sphere() {
 	sphere_program = shader.programNonComputeShader;
 	sphere_compute_program = shader.programComputeShader;
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < config.spheres_count; i++) {
 		spheres.push_back(*new Sphere());
 	}
 
 	for (int i = 0; i < spheres.size(); i++) {
-		spheres[i].constructSphere(4.0f, 0.0f+5*i, 0.1f+i/2.0, 0.2f+ 3*i, 0.6f, 0.6f, 0.6f);
-		spheres[i].subdivide(3);
+	
+		float x = random_float_in_range(config.spheres_start_position_minx, config.spheres_start_position_maxx);
+		float y = random_float_in_range(config.spheres_start_position_miny, config.spheres_start_position_maxy);
+		float z = random_float_in_range(config.spheres_start_position_minz, config.spheres_start_position_maxz);
+
+		spheres[i].constructSphere(config.spheres_radius, x, y, z,
+			config.spheres_color_red, config.spheres_color_green, config.spheres_color_blue);
+		spheres[i].subdivide(config.sphere_smoothness);
 	}
 
 	//Data for vertices for all spheres collected inside one array
@@ -518,28 +547,4 @@ void Rectangle::init_lines() {
 	
 }
 
-//Returns the new expanded buffer
-GLuint Rectangle::expandBuffer(GLuint buffer, GLint numOfBytes) {
 
-	void *p1, *p2;
-
-	GLuint newBuffer;
-	glGenBuffers(1, &newBuffer);
-	GLint size;
-	glBindBuffer(GL_COPY_READ_BUFFER, buffer);
-	glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
-
-	glBindBuffer(GL_COPY_WRITE_BUFFER, newBuffer);
-
-	glBufferData(GL_COPY_WRITE_BUFFER, size + numOfBytes, NULL, GL_DYNAMIC_COPY);
-
-	if(size > 0)
-	glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER,0 ,0 ,size);
-
-	glBindBuffer(GL_COPY_READ_BUFFER, 0);
-	glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-	
-	glDeleteBuffers(1, &buffer);
-
-	return newBuffer;
-}

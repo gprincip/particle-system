@@ -1,0 +1,56 @@
+
+################################# CONFIGURATION #################################
+
+#rules:
+#1. lines which begin with # are comments
+#2. put entries in format key=value. No blank spaces in single line
+#3. every entry must have both key, equal sign(=) and value
+
+#info:
+#1. all properties have default values which will be overwritten by the
+#   values specified here
+#2. activate default value by commenting out the entry (add # at the beggining of the row)
+
+##################################################################################
+
+config.spheres.enabled=false
+config.particles.enabled=true
+
+####### particles configuration #######
+
+#total number of particles will be ( group_size * group_count )
+
+config.particle_group_size=128
+config.particle_group_count=15000
+
+config.particles_start_position_minx=-10
+config.particles_start_position_miny=-10
+config.particles_start_position_minz=-10
+
+config.particles_start_position_maxx=-10.1
+config.particles_start_position_maxy=-10.1
+config.particles_start_position_maxz=-10.1
+
+####### spheres configuration #######
+
+#spheres are constructed using triangle mesh. Bigger smoothness means more triangles
+#which means better quality and roundness of the spheres, but lower fps
+
+config.spheres.smoothness=3
+
+config.spheres.count=2
+config.spheres.radius=0.3
+
+#rgb color of the spheres. Pick from [0 , 1]
+
+config.spheres.color.red=0.1
+config.spheres.color.green=0.2
+config.spheres.color.blue=0.8
+
+config.spheres_start_position_minx=-0.5
+config.spheres_start_position_miny=-0.5
+config.spheres_start_position_minz=-0.5
+
+config.spheres_start_position_maxx=0.5
+config.spheres_start_position_maxy=0.5
+config.spheres_start_position_maxz=0.5
