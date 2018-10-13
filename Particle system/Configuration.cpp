@@ -37,12 +37,12 @@ bool Configuration::load_configuration(char *configFilename) {
 				}
 				else if (pair.first == "config.particles.enabled") {
 
-					particles = (pair.second == "true" || pair.second == "1") ? true : false;
+					particles_enabled = (pair.second == "true" || pair.second == "1") ? true : false;
 
 				}
 				else if (pair.first == "config.spheres.enabled") {
 
-					spheres = (pair.second == "true" || pair.second == "1") ? true : false;
+					spheres_enabled = (pair.second == "true" || pair.second == "1") ? true : false;
 
 				}
 				else if (pair.first == "config.spheres.count") {

@@ -4,7 +4,8 @@
 #rules:
 #1. lines which begin with # are comments
 #2. put entries in format key=value. No blank spaces in single line
-#3. every entry must have both key, equal sign(=) and value
+#3. every entry must have key, equal sign(=) and value
+#4. no more then one equal sign (=) par entry
 
 #info:
 #1. all properties have default values which will be overwritten by the
@@ -13,15 +14,15 @@
 
 ##################################################################################
 
-config.spheres.enabled=false
-config.particles.enabled=true
+config.spheres.enabled=true
+config.particles.enabled=false
 
 ####### particles configuration #######
 
 #total number of particles will be ( group_size * group_count )
 
 config.particle_group_size=128
-config.particle_group_count=15000
+config.particle_group_count=5000
 
 config.particles_start_position_minx=-10
 config.particles_start_position_miny=-10
@@ -37,20 +38,19 @@ config.particles_start_position_maxz=-10.1
 #which means better quality and roundness of the spheres, but lower fps
 
 config.spheres.smoothness=3
-
-config.spheres.count=2
-config.spheres.radius=0.3
+config.spheres.count=4
+config.spheres.radius=4
 
 #rgb color of the spheres. Pick from [0 , 1]
 
-config.spheres.color.red=0.1
-config.spheres.color.green=0.2
-config.spheres.color.blue=0.8
+config.spheres.color.red=0.5
+config.spheres.color.green=0.6
+config.spheres.color.blue=0.7
 
 config.spheres_start_position_minx=-0.5
 config.spheres_start_position_miny=-0.5
 config.spheres_start_position_minz=-0.5
 
-config.spheres_start_position_maxx=0.5
-config.spheres_start_position_maxy=0.5
-config.spheres_start_position_maxz=0.5
+config.spheres_start_position_maxx=3.5
+config.spheres_start_position_maxy=3.5
+config.spheres_start_position_maxz=3.5

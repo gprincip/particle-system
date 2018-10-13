@@ -124,7 +124,7 @@ void Rectangle::Render(GLfloat aspect)
 
 	/******************PARTICLES DRAWING*****************/
 
-	if (config.particles) {
+	if (config.particles_enabled) {
 
 		glUseProgram(compute_prog);
 
@@ -162,7 +162,7 @@ void Rectangle::Render(GLfloat aspect)
 	/****************SPHERES DRAWING****************/
 	//Disable blending so the spheres arent transparent
 
-	if (config.spheres) {
+	if (config.spheres_enabled) {
 
 		glDisable(GL_BLEND);
 		glEnable(GL_DEPTH_TEST);
@@ -197,7 +197,7 @@ void Rectangle::Render(GLfloat aspect)
 
 	/******************LINES DRAWING*****************/
 
-	if (config.spheres) {
+	if (config.spheres_enabled) {
 
 		glUseProgram(line_program);
 		glBindVertexArray(line_vao);
@@ -234,7 +234,7 @@ void Rectangle::Render(GLfloat aspect)
 		double endTime = glfwGetTime();
 		char deltaTime[50];
 
-		if (config.particles) {
+		if (config.particles_enabled) {
 
 			sprintf_s(deltaTime, "ms ~ %.3f  Number of particles: %d", (endTime - startTime) * 1000, config.getParticleCount());
 

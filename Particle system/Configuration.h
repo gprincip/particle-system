@@ -9,8 +9,8 @@ public:
 	int	PARTICLE_GROUP_SIZE = 128;
 	int PARTICLE_GROUP_COUNT = 5000;
 	
-	bool spheres = false;
-	bool particles = true;
+	bool spheres_enabled = false;
+	bool particles_enabled = true;
 
 	float particles_start_position_minx = 0;
 	float particles_start_position_miny = 0;
