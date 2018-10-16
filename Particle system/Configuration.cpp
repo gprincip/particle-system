@@ -28,6 +28,7 @@ bool Configuration::load_configuration(char *configFilename) {
 				else if (pair.first == "config.particle_group_count") {
 
 					PARTICLE_GROUP_COUNT = stoi(pair.second);
+					writeVectorFieldToCoreComputeShader();
 
 				}
 				else if (pair.first == "config.particle_group_size") {
@@ -137,7 +138,7 @@ bool Configuration::load_configuration(char *configFilename) {
 				}
 				else {
 
-					cout << "Unknown property: " << pair.first << endl;
+					cout << "Unknown property in configuration file: " << pair.first << endl;
 
 				}
 				
@@ -177,5 +178,44 @@ std::pair<string,string> Configuration::getKeyValueFromString(string line) {
 	}
 
 	return std::make_pair(key, value);
+
+}
+
+void Configuration::writeVectorFieldToCoreComputeShader() {
+
+	string startIndicator = "WRITE_INDICATOR_START";
+	string endIndicator = "WRITE_INDICATOR_END";
+
+	//data to be written to core.comp
+	string stringBuffer = "";
+
+	string line;
+
+	ifstream file("core.comp");
+
+	if (file.is_open())
+	{
+		while (getline(file, line)) {
+			if (line.find(startIndicator, 0) == SIZE_MAX) {
+				stringBuffer += (line + "\n");
+			}
+			else {
+				stringBuffer += (line + "\n");
+				stringBuffer += ("float x = " + vector_field_x + ";\n" + "float y = " + vector_field_y +
+					";\n" + "float z = " + vector_field_z + ";\n");
+
+				while (line.find(endIndicator, 0) == SIZE_MAX) {
+
+					getline(file, line);
+
+				}
+				stringBuffer += "//WRITE_INDICATOR_END";
+			}
+		}
+
+		ofstream writer("test.txt");
+		writer << stringBuffer;
+
+	}
 
 }

@@ -546,5 +546,3 @@ void Rectangle::init_lines() {
 	glBindVertexArray(0);
 	
 }
-
-

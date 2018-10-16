@@ -14,6 +14,14 @@
 
 ##################################################################################
 
+####### setting the vector field #######
+
+config.vector_field.x=2*pos.y
+config.vector_field.y=pos.z
+config.vector_field.z=0
+
+########################################
+
 config.spheres.enabled=true
 config.particles.enabled=false
 
@@ -22,7 +30,7 @@ config.particles.enabled=false
 #total number of particles will be ( group_size * group_count )
 
 config.particle_group_size=128
-config.particle_group_count=5000
+config.particle_group_count=1000
 
 config.particles_start_position_minx=-10
 config.particles_start_position_miny=-10
@@ -38,19 +46,19 @@ config.particles_start_position_maxz=-10.1
 #which means better quality and roundness of the spheres, but lower fps
 
 config.spheres.smoothness=3
-config.spheres.count=4
-config.spheres.radius=4
+config.spheres.count=8
+config.spheres.radius=1
 
 #rgb color of the spheres. Pick from [0 , 1]
 
-config.spheres.color.red=0.5
+config.spheres.color.red=0.2
 config.spheres.color.green=0.6
 config.spheres.color.blue=0.7
 
-config.spheres_start_position_minx=-0.5
-config.spheres_start_position_miny=-0.5
-config.spheres_start_position_minz=-0.5
+config.spheres_start_position_minx=-5.5
+config.spheres_start_position_miny=-5.5
+config.spheres_start_position_minz=-5.5
 
-config.spheres_start_position_maxx=3.5
-config.spheres_start_position_maxy=3.5
-config.spheres_start_position_maxz=3.5
+config.spheres_start_position_maxx=7.5
+config.spheres_start_position_maxy=7.5
+config.spheres_start_position_maxz=7.5

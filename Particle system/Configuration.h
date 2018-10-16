@@ -6,6 +6,10 @@ using namespace std;
 class Configuration {
 public:
 
+	string vector_field_x = "2*pos.y";
+	string vector_field_y = "pos.z";
+	string vector_field_z = "0";
+
 	int	PARTICLE_GROUP_SIZE = 128;
 	int PARTICLE_GROUP_COUNT = 5000;
 	
@@ -37,8 +41,12 @@ public:
 	float spheres_start_position_maxz = 0.1;
 
 	std::pair<string, string> getKeyValueFromString(string line);
+
 	bool load_configuration(char *configFilename);
 	int getParticleCount() {
 		return PARTICLE_GROUP_COUNT * PARTICLE_GROUP_SIZE;
 	}
+
+	void writeVectorFieldToCoreComputeShader();
+
 };

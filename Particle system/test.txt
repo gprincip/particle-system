@@ -56,11 +56,10 @@ void main(void)
 	}else if(currentVectorField == 6){
 	
 //WRITE_INDICATOR_START
-float x,y,z;
-		
-
+float x = 2*pos.y;
+float y = pos.z;
+float z = 0;
 //WRITE_INDICATOR_END
-
 		translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, x , y , z , 1.0);
 	
 	}
