@@ -48,5 +48,6 @@ public:
 	}
 
 	void writeVectorFieldToCoreComputeShader();
+	void writeVectorFieldToSpheresComputeShader();
 
 };

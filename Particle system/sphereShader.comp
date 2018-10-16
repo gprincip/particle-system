@@ -75,7 +75,17 @@ void main(){
 
 				translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, 0.0 , 0.0 , 0.0 , 1.0);
 
-			}
+			}else if(currentVF == 6){
+	
+//WRITE_INDICATOR_START
+float x = 0.01;
+float y = 0.1;
+float z = 0;
+//WRITE_INDICATOR_END
+
+		translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, x , y , z , 1.0);
+	
+	}
 
 			for(int j = i; j < (i + verticesPerSphere); j+=9){
 

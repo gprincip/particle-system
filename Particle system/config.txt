@@ -16,8 +16,8 @@
 
 ####### setting the vector field #######
 
-config.vector_field.x=2*pos.y
-config.vector_field.y=pos.z
+config.vector_field.x=0.01
+config.vector_field.y=0.1
 config.vector_field.z=0
 
 ########################################

@@ -136,6 +136,21 @@ bool Configuration::load_configuration(char *configFilename) {
 					spheres_start_position_maxz = stof(pair.second);
 
 				}
+				else if (pair.first == "config.vector_field.x") {
+
+					vector_field_x = pair.second;
+
+				}
+				else if (pair.first == "config.vector_field.y") {
+
+					vector_field_y = pair.second;
+
+				}
+				else if (pair.first == "config.vector_field.z") {
+
+					vector_field_z = pair.second;
+
+				}
 				else {
 
 					cout << "Unknown property in configuration file: " << pair.first << endl;
@@ -209,11 +224,50 @@ void Configuration::writeVectorFieldToCoreComputeShader() {
 					getline(file, line);
 
 				}
-				stringBuffer += "//WRITE_INDICATOR_END";
+				stringBuffer += "//WRITE_INDICATOR_END\n";
 			}
 		}
 
-		ofstream writer("test.txt");
+		ofstream writer("core.comp");
+		writer << stringBuffer;
+
+	}
+
+}
+
+void Configuration::writeVectorFieldToSpheresComputeShader() {
+
+	string startIndicator = "WRITE_INDICATOR_START";
+	string endIndicator = "WRITE_INDICATOR_END";
+
+	//data to be written to core.comp
+	string stringBuffer = "";
+
+	string line;
+
+	ifstream file("spheresShader.comp");
+
+	if (file.is_open())
+	{
+		while (getline(file, line)) {
+			if (line.find(startIndicator, 0) == SIZE_MAX) {
+				stringBuffer += (line + "\n");
+			}
+			else {
+				stringBuffer += (line + "\n");
+				stringBuffer += ("float x = " + vector_field_x + ";\n" + "float y = " + vector_field_y +
+					";\n" + "float z = " + vector_field_z + ";\n");
+
+				while (line.find(endIndicator, 0) == SIZE_MAX) {
+
+					getline(file, line);
+
+				}
+				stringBuffer += "//WRITE_INDICATOR_END\n";
+			}
+		}
+
+		ofstream writer("sphereShader.comp");
 		writer << stringBuffer;
 
 	}
