@@ -78,9 +78,9 @@ void main(){
 			}else if(currentVF == 6){
 	
 //WRITE_INDICATOR_START
-float x = 0.01;
-float y = 0.1;
-float z = 0;
+float x = sin(cy)-0.1*cx;
+float y = sin(cz)-0.1*cy;
+float z = sin(cx)-0.1*cz;
 //WRITE_INDICATOR_END
 
 		translation = mat4(1.0, 0.0, 0.0, 0.0,  0.0, 1.0, 0.0, 0.0,  0.0, 0.0, 1.0, 0.0, x , y , z , 1.0);

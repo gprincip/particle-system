@@ -28,7 +28,6 @@ bool Configuration::load_configuration(char *configFilename) {
 				else if (pair.first == "config.particle_group_count") {
 
 					PARTICLE_GROUP_COUNT = stoi(pair.second);
-					writeVectorFieldToCoreComputeShader();
 
 				}
 				else if (pair.first == "config.particle_group_size") {
@@ -168,6 +167,10 @@ bool Configuration::load_configuration(char *configFilename) {
 		return false;
 	}
 	//everything ok
+
+	writeVectorFieldToShader("core.comp");
+	writeVectorFieldToShader("sphereShader.comp");
+
 	return true;
 }
 
@@ -196,7 +199,7 @@ std::pair<string,string> Configuration::getKeyValueFromString(string line) {
 
 }
 
-void Configuration::writeVectorFieldToCoreComputeShader() {
+void Configuration::writeVectorFieldToShader(string filename) {
 
 	string startIndicator = "WRITE_INDICATOR_START";
 	string endIndicator = "WRITE_INDICATOR_END";
@@ -206,7 +209,7 @@ void Configuration::writeVectorFieldToCoreComputeShader() {
 
 	string line;
 
-	ifstream file("core.comp");
+	ifstream file(filename);
 
 	if (file.is_open())
 	{
@@ -215,9 +218,91 @@ void Configuration::writeVectorFieldToCoreComputeShader() {
 				stringBuffer += (line + "\n");
 			}
 			else {
+
+				string vectorFieldX, vectorFieldY, vectorFieldZ;
+
+				if (filename == "core.comp") {
+					string pos = "pos.";
+					for (int i = 0; i < vector_field_x.length(); i++) {
+
+						if (vector_field_x[i] == 'x' || vector_field_x[i] == 'y' || vector_field_x[i] == 'z') {
+							vectorFieldX += (pos + vector_field_x[i]);
+						}
+						else {
+							vectorFieldX += vector_field_x[i];
+						}
+
+					}
+
+					for (int i = 0; i < vector_field_y.length(); i++) {
+
+						if (vector_field_y[i] == 'x' || vector_field_y[i] == 'y' || vector_field_y[i] == 'z') {
+							vectorFieldY += pos + vector_field_y[i];
+						}
+						else {
+							vectorFieldY += vector_field_y[i];
+						}
+					}
+
+					for (int i = 0; i < vector_field_z.length(); i++) {
+
+						if (vector_field_z[i] == 'x' || vector_field_z[i] == 'y' || vector_field_z[i] == 'z') {
+							vectorFieldZ += pos + vector_field_z[i];
+						}
+						else {
+							vectorFieldZ += vector_field_z[i];
+						}
+
+					}
+
+				}
+				else if (filename == "sphereShader.comp") {
+
+					string c = "c";
+
+					for (int i = 0; i < vector_field_x.length(); i++) {
+
+						if (vector_field_x[i] == 'x' || vector_field_x[i] == 'y' || vector_field_x[i] == 'z') {
+							vectorFieldX += c + vector_field_x[i];
+						}
+						else {
+							vectorFieldX += vector_field_x[i];
+						}
+					}
+
+					for (int i = 0; i < vector_field_y.length(); i++) {
+
+						if (vector_field_y[i] == 'x' || vector_field_y[i] == 'y' || vector_field_y[i] == 'z') {
+							vectorFieldY += c + vector_field_y[i];
+						}
+						else {
+							vectorFieldY += vector_field_y[i];
+						}
+					}
+
+					for (int i = 0; i < vector_field_z.length(); i++) {
+
+						if (vector_field_z[i] == 'x' || vector_field_z[i] == 'y' || vector_field_z[i] == 'z') {
+							vectorFieldZ += c + vector_field_z[i];
+						}
+						else {
+							vectorFieldZ += vector_field_z[i];
+						}
+
+					}
+
+				}
+				else {
+
+					vectorFieldX = vector_field_x;
+					vectorFieldY = vector_field_y;
+					vectorFieldZ = vector_field_z;
+
+				}
+
 				stringBuffer += (line + "\n");
-				stringBuffer += ("float x = " + vector_field_x + ";\n" + "float y = " + vector_field_y +
-					";\n" + "float z = " + vector_field_z + ";\n");
+				stringBuffer += ("float x = " + vectorFieldX + ";\n" + "float y = " + vectorFieldY +
+					";\n" + "float z = " + vectorFieldZ + ";\n");
 
 				while (line.find(endIndicator, 0) == SIZE_MAX) {
 
@@ -228,46 +313,7 @@ void Configuration::writeVectorFieldToCoreComputeShader() {
 			}
 		}
 
-		ofstream writer("core.comp");
-		writer << stringBuffer;
-
-	}
-
-}
-
-void Configuration::writeVectorFieldToSpheresComputeShader() {
-
-	string startIndicator = "WRITE_INDICATOR_START";
-	string endIndicator = "WRITE_INDICATOR_END";
-
-	//data to be written to core.comp
-	string stringBuffer = "";
-
-	string line;
-
-	ifstream file("spheresShader.comp");
-
-	if (file.is_open())
-	{
-		while (getline(file, line)) {
-			if (line.find(startIndicator, 0) == SIZE_MAX) {
-				stringBuffer += (line + "\n");
-			}
-			else {
-				stringBuffer += (line + "\n");
-				stringBuffer += ("float x = " + vector_field_x + ";\n" + "float y = " + vector_field_y +
-					";\n" + "float z = " + vector_field_z + ";\n");
-
-				while (line.find(endIndicator, 0) == SIZE_MAX) {
-
-					getline(file, line);
-
-				}
-				stringBuffer += "//WRITE_INDICATOR_END\n";
-			}
-		}
-
-		ofstream writer("sphereShader.comp");
+		ofstream writer(filename);
 		writer << stringBuffer;
 
 	}

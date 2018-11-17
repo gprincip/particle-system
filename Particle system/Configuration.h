@@ -47,7 +47,5 @@ public:
 		return PARTICLE_GROUP_COUNT * PARTICLE_GROUP_SIZE;
 	}
 
-	void writeVectorFieldToCoreComputeShader();
-	void writeVectorFieldToSpheresComputeShader();
-
+	void writeVectorFieldToShader(string filename);
 };

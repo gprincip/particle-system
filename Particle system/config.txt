@@ -16,29 +16,36 @@
 
 ####### setting the vector field #######
 
-config.vector_field.x=0.01
-config.vector_field.y=0.1
-config.vector_field.z=0
+#config.vector_field.x=y*(z-1+pow(x,2))+0.87*x
+#config.vector_field.y=x*(3*z+1-pow(x,2))+0.87*y
+#config.vector_field.z=-2*z*(1.1+x*y)
+
+#Thomas' cyclically symmetric attractor
+#b=0.208186
+
+config.vector_field.x=sin(y)-0.1*x
+config.vector_field.y=sin(z)-0.1*y
+config.vector_field.z=sin(x)-0.1*z
 
 ########################################
 
-config.spheres.enabled=true
-config.particles.enabled=false
+config.spheres.enabled=false
+config.particles.enabled=true
 
 ####### particles configuration #######
 
 #total number of particles will be ( group_size * group_count )
 
 config.particle_group_size=128
-config.particle_group_count=1000
+config.particle_group_count=5000
 
 config.particles_start_position_minx=-10
 config.particles_start_position_miny=-10
 config.particles_start_position_minz=-10
 
-config.particles_start_position_maxx=-10.1
-config.particles_start_position_maxy=-10.1
-config.particles_start_position_maxz=-10.1
+config.particles_start_position_maxx=10
+config.particles_start_position_maxy=10
+config.particles_start_position_maxz=10
 
 ####### spheres configuration #######
 
@@ -46,19 +53,19 @@ config.particles_start_position_maxz=-10.1
 #which means better quality and roundness of the spheres, but lower fps
 
 config.spheres.smoothness=3
-config.spheres.count=8
-config.spheres.radius=1
+config.spheres.count=1
+config.spheres.radius=2
 
 #rgb color of the spheres. Pick from [0 , 1]
 
-config.spheres.color.red=0.2
+config.spheres.color.red=0.6
 config.spheres.color.green=0.6
-config.spheres.color.blue=0.7
+config.spheres.color.blue=0.6
 
-config.spheres_start_position_minx=-5.5
-config.spheres_start_position_miny=-5.5
-config.spheres_start_position_minz=-5.5
+config.spheres_start_position_minx=-1
+config.spheres_start_position_miny=0
+config.spheres_start_position_minz=0.5
 
-config.spheres_start_position_maxx=7.5
-config.spheres_start_position_maxy=7.5
-config.spheres_start_position_maxz=7.5
+config.spheres_start_position_maxx=-1
+config.spheres_start_position_maxy=0
+config.spheres_start_position_maxz=0.5
